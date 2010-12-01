@@ -109,7 +109,6 @@ Pattern elements are basic-pattern-element or extended-pattern-element ( express
       Assign a name to an element for later programatic reference:
         rule_variant_node_class_instance.my_name
 
-    :optional => true
     :optionally => true
       PEG equivelent: term?
       turn this into an optional-match element
