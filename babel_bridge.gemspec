@@ -1,6 +1,8 @@
+require File.join(File.dirname(__FILE__),"lib/babel_bridge.rb")
+
 $gemspec = Gem::Specification.new do |s|
   s.name = "babel_bridge"
-  s.version = "0.1.0"
+  s.version = BabelBridge::VERSION
   s.author = "Shane Brinkman-Davis"
   s.date = "2010-11-28"
   s.email = "shanebdavis@gmail.com"
