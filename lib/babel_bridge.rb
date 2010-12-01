@@ -51,6 +51,7 @@ class String
 end
 
 module BabelBridge
+  VERSION = "0.1.1"
 
   # hash which can be used declaratively
   class PatternElementHash < Hash
