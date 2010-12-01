@@ -8,6 +8,10 @@ module BabelBridge
   # base class for all parse-tree nodes
   class Node
     attr_accessor :src,:offset,:match_length,:parent,:parser
+    
+    def to_s
+      text
+    end
 
     def node_init(parent_or_parser)
       self.match_length=0
