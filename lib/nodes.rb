@@ -154,7 +154,6 @@ end
     def method_missing(method_name, *args)  #method_name is a symbol
       unless matches_by_name.has_key? method_name
         if matches[0]
-          puts "sending #{method_name.inspect} to #{matches[0].class}"      
           return matches[0].send(method_name,*args)
         end
         raise "#{self.class}: missing method #{method_name.inspect} / doesn't match named pattern element: #{matches_by_name.keys.inspect}"
