@@ -1,3 +1,9 @@
+=begin
+Copyright 2010 Shane Brinkman-Davis
+See README for licence information.
+http://babel-bridge.rubyforge.org/
+=end
+
 module BabelBridge
 
   # this is just so we can distinguish between normal arrays and arrays of matches

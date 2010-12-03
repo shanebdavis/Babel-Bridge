@@ -1,0 +1,24 @@
+2010-12-03
+
+TODO: allow arbitrary nesting of anonymous patterns
+TODO: add OR anonymous pattern
+TODO-FEATURE: :pre_delimiter option for many()
+TODO-FEATURE: The "expecting" feature is so good I wonder if we should add the ability to make and apply suggestions to "repair the parse".
+  This would need:
+    a) default values for regex termainals
+      . string terminals are their own default values
+      . default values for regex should be verified to match the regex
+    b) an interactive prompter if there is more than one option
+
+TODO-IMPROVEMENT: "Expecting" should show line numbers instead of char numbers, but it should only be calculated
+  on demand. This means we need a smarter formatter for our possible-error-logging.
+
+TODO-BUG: "Expecting" doesn't do the right thing if a "dont" clause matched
+  Should say "something other than #{the don't clause}"
+  Ideally, we would continue matching and list all the possible next clauses that would allow us to continue
+
+IDEA: could use the "-" prefix operator to mean "dont":
+  -"this"
+  -:that
+  -match(:foo)
+  -many(:foo)

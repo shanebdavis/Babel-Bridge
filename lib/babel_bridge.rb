@@ -1,30 +1,7 @@
 =begin
-
-See README
-
-TODO-FEATURE: :pre_delimiter option
-TODO-FEATURE: The "expecting" feature is so good I wonder if we should add the ability to automatically repair the parse!
-  This would need:
-    a) default values for regex termainals (string terminals are their own default values)
-      default values for regex should be verified to match the regex
-    b) an interactive prompter if there is more than one option
-
-TODO-IMPROVEMENT: "Expecting" should show line numbers instead of char numbers, but it should only calculated
-  on demand. This means we need a smarter formatter for our possible-error-logging.
-TODO-IMPROVEMENT: "Expecting" code lines dump should show line numbers
-
-TODO-BUG: "Expecting" doesn't do the right thing of a "dont" clause matched
-  Should say "something other than #{the don't clause}"
-  Ideally, we would continue matching and list all the possible next clauses that would allow us to continue
-
-IDEA: could use the "-" prefix operator to mean "dont":
-  -"this"
-  -:that
-  -match(:foo)
-  -many(:foo)
-
-TODO-OPTIMIZATION: add memoizing (caching / dynamic-programming) to guarantee linear time parsing
-  http://en.wikipedia.org/wiki/Parsing_expression_grammar#Implementing_parsers_from_parsing_expression_grammars
+Copyright 2010 Shane Brinkman-Davis
+See README for licence information.
+http://babel-bridge.rubyforge.org/
 =end
 
 require File.dirname(__FILE__) + "/nodes.rb"
@@ -51,7 +28,7 @@ class String
 end
 
 module BabelBridge
-  VERSION = "0.1.1"
+  VERSION = "0.1.2"
 
   # hash which can be used declaratively
   class PatternElementHash < Hash
