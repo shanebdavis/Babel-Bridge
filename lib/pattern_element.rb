@@ -73,7 +73,7 @@ module BabelBridge
       match_rule=rule_variant.rule.parser.rules[rule_name]
       raise "no rule for #{rule_name}" unless match_rule
 
-      self.parser =lambda {|parent_node| match_rule.parse(parent_node)}
+      self.parser = lambda {|parent_node| match_rule.parse(parent_node)}
       self.name   = rule_name
       case option
       when "?"  then self.optional=true
