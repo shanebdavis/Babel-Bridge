@@ -87,14 +87,14 @@ module BabelBridge
     def each(&block)
       matches.each(&block)
     end
-end
+  end
 
   class RootNode < Node
   end
 
   # non-terminal node
   # subclassed automatically by parser.rule for each unique non-terminal
-  class NodeNT < Node
+  class NonTerminalNode < Node
     attr_accessor :matches,:match_names
 
     def match_names

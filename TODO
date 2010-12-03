@@ -1,7 +1,12 @@
 2010-12-03
+----------
 
 TODO: allow arbitrary nesting of anonymous patterns
 TODO: add OR anonymous pattern
+TODO: detect and handle left recursion
+
+2010-11-*
+---------
 TODO-FEATURE: :pre_delimiter option for many()
 TODO-FEATURE: The "expecting" feature is so good I wonder if we should add the ability to make and apply suggestions to "repair the parse".
   This would need:
