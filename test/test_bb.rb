@@ -68,12 +68,22 @@ class BBTests < TestHelper
 
   def test_regex
     parser=new_parser do
-      rule :foo, [/[0-9]+/]
+      rule :foo, /[0-9]+/
     end
 
     %w{ 0 1 10 123 1001 }.each do |numstr|
       assert_equal numstr,parser.parse(numstr).text
     end
+  end
+
+  def test_regex_offset
+    parser=new_parser do
+      rule :foo, /[0-9]+/
+      rule :foo, "hi", /[0-9]+/
+    end
+
+    assert_equal 1,parser.parse("123").matches.length
+    assert_equal 2,parser.parse("hi123").matches.length
   end
 
   def test_optional
@@ -378,10 +388,24 @@ class BBTests < TestHelper
     end
     parser.parse "-"
   end
+
+
+  def regex_performance
+    parser=new_parser do
+      rule :foo, many(:element)
+      rule :element, /[0-9]+/
+      rule :element, "a"
+    end
+
+    str=("a"*10000)+"1"
+    start_time=Time.now
+    res=parser.parse(str)
+    end_time=Time.now
+    puts "time for matching string of length #{str.length}: #{((end_time-start_time)*1000).to_i}ms"
+    puts "parse tree size: #{res.element.length}"
+    assert res
+  end
 end
 
 tests=BBTests.new
-
-
-
 tests.run_tests(ARGV.length>0 && ARGV)
