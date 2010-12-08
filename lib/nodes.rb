@@ -14,7 +14,7 @@ module BabelBridge
   # base class for all parse-tree nodes
   class Node
     attr_accessor :src,:offset,:match_length,:parent,:parser
-    
+
     def to_s
       text
     end
@@ -170,8 +170,6 @@ module BabelBridge
     # adds a match with name (optional)
     # returns self so you can chain add_match or concat methods
     def add_match(match,name=nil)
-      raise "match must be a Node (match is a #{match.class})" unless match.kind_of?(Node)
-      raise "name must be a Symbol or nil (name is a #{name.class})" if name && !name.kind_of?(Symbol)
       reset_matches_by_name
       matches<<match
       match_names<<name
@@ -197,16 +195,22 @@ module BabelBridge
       node_init(parent)
       self.matches=[]
       self.delimiter_matches=[]
-      self.match_length=nil   # use match_length as an override; if nil, then match_length is determined by the last node and delimiter_match
     end
 
-    def match_length; @match_length || (self.next-offset) end
+    def match_length; self.next-offset end
+
     def next
-      return offset+@match_length if @match_length
-      ret=nil
-      ret=matches[-1].next if matches[-1] && (!ret || matches[-1].next > ret)
-      ret=delimiter_matches[-1].next if delimiter_matches[-1] && (!ret || delimiter_matches[-1].next > ret)
-      ret||=parent.next
+      if m=matches[-1]
+        m_next=m.next
+        if d=delimiter_matches[-1]
+          d_next=d.next
+          m_next > d_next ? m_next : d_next
+        else
+          m_next
+        end
+      else
+        parent.next
+      end
     end
 
     def inspect_helper(list,options)
@@ -244,7 +248,7 @@ module BabelBridge
     end
 
     def inspect(options={})
-      "#{text.inspect}" unless options[:simple] && text[/^\s*$/] # if simple && node only matched white-space, return nil 
+      "#{text.inspect}" unless options[:simple] && text[/^\s*$/] # if simple && node only matched white-space, return nil
     end
 
     def matches; [self]; end
