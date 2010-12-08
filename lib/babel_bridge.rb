@@ -107,8 +107,7 @@ module BabelBridge
       end
 
       variants.each do |v|
-        match=v.parse(node)
-        if match
+        if match=v.parse(node)
           node.parser.cache_match(name,match)
           return match
         end
