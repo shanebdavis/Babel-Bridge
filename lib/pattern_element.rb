@@ -35,6 +35,7 @@ module BabelBridge
       match.inspect
     end
 
+    # attempt to match the pattern defined in self.parser in parent_node.src starting at offset parent_node.next
     def parse(parent_node)
       # run element parser
       match=parser.call(parent_node)
@@ -54,18 +55,48 @@ module BabelBridge
 
     private
 
+    # initialize PatternElement based on the type of: match
     def init(match)
       self.match=match
       case match
       when TrueClass then init_true
-      when Hash then      init_hash match
-      when Symbol then    init_rule match
       when String then    init_string match
       when Regexp then    init_regex match
+      when Symbol then    init_rule match
+      when Hash then      init_hash match
       else                raise "invalid pattern type: #{match.inspect}"
       end
     end
 
+    # "true" parser always matches the empty string
+    def init_true
+      self.parser=lambda {|parent_node| EmptyNode.new(parent_node)}
+    end
+
+    # initialize PatternElement as a parser that matches exactly the string specified
+    def init_string(string)
+      self.parser=lambda do |parent_node|
+        if parent_node.src[parent_node.next,string.length]==string
+          TerminalNode.new(parent_node,string.length,string)
+        end
+      end
+      self.terminal=true
+    end
+
+    # initialize PatternElement as a parser that matches the given regex
+    def init_regex(regex)
+      optimized_regex=/\A#{regex}/  # anchor the search
+      self.parser=lambda do |parent_node|
+        offset=parent_node.next
+        if parent_node.src[offset..-1].index(optimized_regex)==0
+          range=$~.offset(0)
+          TerminalNode.new(parent_node,range[1]-range[0],regex)
+        end
+      end
+      self.terminal=true
+    end
+
+    # initialize PatternElement as a parser that matches a named sub-rule
     def init_rule(rule_name)
       rule_name.to_s[/^([^?!]*)([?!])?$/]
       rule_name=$1.to_sym
@@ -81,25 +112,46 @@ module BabelBridge
       end
     end
 
+    # initialize the PatternElement from hashed parameters
     def init_hash(hash)
       if hash[:parser]
         self.parser=hash[:parser]
       elsif hash[:many]
-        init hash[:many]
-        #generate parser for poly
-        delimiter_pattern_element= PatternElement.new(hash[:delimiter]||true,rule_variant)
+        init_many hash
+      elsif hash[:match]
+        init hash[:match]
+      else
+        raise "extended-options patterns (specified by a hash) must have either :parser=> or a :match=> set"
+      end
 
-        post_delimiter_element=case hash[:post_delimiter]
-          when TrueClass then delimiter_pattern_element
-          when nil then nil
-          else PatternElement.new(hash[:post_delimiter],rule_variant)
-          end
+      self.name = hash[:as] || self.name
+      self.optional ||= hash[:optional] || hash[:optionally]
+      self.could_match ||= hash[:could]
+      self.negative ||= hash[:dont]
+    end
 
-        # convert the single element parser into a poly-parser
-        single_parser=parser
-        self.parser= lambda do |parent_node|
-          last_match=single_parser.call(parent_node)
-          many_node=ManyNode.new(parent_node)
+    # initialize the PatternElement as a many-parser from hashed parameters (hash[:many] is assumed to be set)
+    def init_many(hash)
+      # generate single_parser
+      init hash[:many]
+      single_parser=parser
+
+      # generate delimiter_pattern_element
+      delimiter_pattern_element= hash[:delimiter] && PatternElement.new(hash[:delimiter],rule_variant)
+
+      # generate post_delimiter_element
+      post_delimiter_element=hash[:post_delimiter] && case hash[:post_delimiter]
+      when TrueClass then delimiter_pattern_element
+      else PatternElement.new(hash[:post_delimiter],rule_variant)
+      end
+
+      # generate many-parser
+      self.parser= lambda do |parent_node|
+        last_match=single_parser.call(parent_node)
+        many_node=ManyNode.new(parent_node)
+
+        if delimiter_pattern_element
+          # delimited matching
           while last_match
             many_node<<last_match
 
@@ -111,63 +163,31 @@ module BabelBridge
             #match next
             last_match=single_parser.call(many_node)
           end
-
-          # success only if we have at least one match
-          return nil unless many_node.length>0
-
-          # pop the post delimiter matched with delimiter_pattern_element
-          many_node.delimiter_matches.pop if many_node.length==many_node.delimiter_matches.length
-
-          # If post_delimiter is requested, many_node and delimiter_matches must be the same length
-          if post_delimiter_element
-            post_delimiter_match=post_delimiter_element.parse(many_node)
-
-            # fail if post_delimiter didn't match
-            return nil unless post_delimiter_match
-            many_node.delimiter_matches<<post_delimiter_match
+        else
+          # not delimited matching
+          while last_match
+            many_node<<last_match
+            last_match=single_parser.call(many_node)
           end
-
-          many_node
         end
-      elsif hash[:match]
-        init hash[:match]
-      else
-        raise "extended-options patterns (specified by a hash) must have either :parser=> or a :match=> set"
-      end
 
-      self.name = hash[:as] || self.name
-      self.optional ||= hash[:optional] || hash[:optionally]
-      self.could_match ||= hash[:could]
-      self.negative ||= hash[:dont]
+        # success only if we have at least one match
+        return nil unless many_node.length>0
 
-    end
+        # pop the post delimiter matched with delimiter_pattern_element
+        many_node.delimiter_matches.pop if many_node.length==many_node.delimiter_matches.length
 
-    # "true" parser always matches the empty string
-    def init_true
-      self.parser=lambda {|parent_node| EmptyNode.new(parent_node)}
-    end
+        # If post_delimiter is requested, many_node and delimiter_matches will be the same length
+        if post_delimiter_element
+          post_delimiter_match=post_delimiter_element.parse(many_node)
 
-    # parser that matches exactly the string specified
-    def init_string(string)
-      self.parser=lambda do |parent_node|
-        if parent_node.src[parent_node.next,string.length]==string
-          TerminalNode.new(parent_node,string.length,string)
+          # fail if post_delimiter didn't match
+          return nil unless post_delimiter_match
+          many_node.delimiter_matches<<post_delimiter_match
         end
-      end
-      self.terminal=true
-    end
 
-    # parser that matches the given regex
-    def init_regex(regex)
-      optimized_regex=/\A#{regex}/  # anchor the search
-      self.parser=lambda do |parent_node|
-        offset=parent_node.next
-        if parent_node.src[offset..-1].index(optimized_regex)==0
-          range=$~.offset(0)
-          TerminalNode.new(parent_node,range[1]-range[0],regex)
-        end
+        many_node
       end
-      self.terminal=true
     end
   end
 end
