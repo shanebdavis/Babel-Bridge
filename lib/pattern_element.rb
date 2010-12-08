@@ -149,13 +149,24 @@ module BabelBridge
 
     # parser that matches exactly the string specified
     def init_string(string)
-      self.parser=lambda {|parent_node| parent_node.src[parent_node.next,string.length]==string && TerminalNode.new(parent_node,string.length,string)}
+      self.parser=lambda do |parent_node|
+        if parent_node.src[parent_node.next,string.length]==string
+          TerminalNode.new(parent_node,string.length,string)
+        end
+      end
       self.terminal=true
     end
 
     # parser that matches the given regex
     def init_regex(regex)
-      self.parser=lambda {|parent_node| offset=parent_node.next;parent_node.src.index(regex,offset)==offset && (o=$~.offset(0)) && TerminalNode.new(parent_node,o[1]-o[0],regex)}
+      optimized_regex=/\A#{regex}/  # anchor the search
+      self.parser=lambda do |parent_node|
+        offset=parent_node.next
+        if parent_node.src[offset..-1].index(optimized_regex)==0
+          range=$~.offset(0)
+          TerminalNode.new(parent_node,range[1]-range[0],regex)
+        end
+      end
       self.terminal=true
     end
   end
