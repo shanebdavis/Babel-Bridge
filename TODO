@@ -1,3 +1,27 @@
+2010-12-24
+----------
+
+http://en.wikipedia.org/wiki/Parsing_expression_grammar
+Left-Recursion: Given what wikipedia says about left-recursion, I don't want to "support it" at the expense of losing linear-time parsing. I think the right answer is to "handle it nicely":
+
+* detect when we attempt to match a rule-variant that is alreadying being matched at the same caracter position further up the stack.
+* When we detect such a situation, immediately fail to match - as attempting to match leads to infinite recursion.
+* This changes parser behavior in that it will not cause an error. Instead, the parser will procideed to attempt to match other variants.
+
+2010-12-13
+----------
+
+I want the ability to add methods to the base-class for all Nodes on a per-parser basis.
+
+This means that each parser needs to define a new node base-class, derived from BabelBridge::Node, from
+which all the Rule Nodes derive.
+
+2010-12-12
+----------
+
+Right now an Optional node that is not matched returns an instance of EmptyNode. However, in the parsed result, ideally that match-slot would have the value "nil". How can we accomplish that simply?
+
+
 2010-12-03
 ----------
 
