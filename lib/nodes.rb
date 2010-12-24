@@ -157,14 +157,22 @@ module BabelBridge
       @matches_by_name=nil
     end
 
+    # defines where to forward missing methods to; override for custom behavior
+    def forward_to
+      matches[0]
+    end
+
     def method_missing(method_name, *args)  #method_name is a symbol
       unless matches_by_name.has_key? method_name
-        if matches[0]
-          return matches[0].send(method_name,*args)
+        if f=forward_to
+          return f.send(method_name,*args)
         end
         raise "#{self.class}: missing method #{method_name.inspect} / doesn't match named pattern element: #{matches_by_name.keys.inspect}"
       end
-      matches_by_name[method_name]
+      case ret=matches_by_name[method_name]
+      when EmptyNode then nil
+      else ret
+      end
     end
 
     # adds a match with name (optional)
@@ -235,6 +243,11 @@ module BabelBridge
         ret
       end
     end
+
+    def method_missing(method_name, *args)  #method_name is a symbol
+      self.map {|match| match.send(method_name,*args)}
+    end
+
   end
 
   # used for String and Regexp PatternElements
