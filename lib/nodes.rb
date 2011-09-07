@@ -1,5 +1,5 @@
 =begin
-Copyright 2010 Shane Brinkman-Davis
+Copyright 2011 Shane Brinkman-Davis
 See README for licence information.
 http://babel-bridge.rubyforge.org/
 =end

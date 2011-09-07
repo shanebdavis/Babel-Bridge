@@ -1,5 +1,5 @@
 =begin
-Copyright 2010 Shane Brinkman-Davis
+Copyright 2011 Shane Brinkman-Davis
 See README for licence information.
 http://babel-bridge.rubyforge.org/
 =end
@@ -29,7 +29,7 @@ class String
 end
 
 module BabelBridge
-  VERSION = "0.1.2"
+  VERSION = "0.2.0"
 
   # Each Rule has one or more RuleVariant
   # Rules attempt to match each of their Variants in order. The first one to succeed returns true and the Rule succeeds.
