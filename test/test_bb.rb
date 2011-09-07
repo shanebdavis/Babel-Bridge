@@ -321,10 +321,11 @@ class BBTests < TestHelper
 
   def test_poly_post_delimiter
     parser=new_parser do
-      rule :foo, many?("foo",/ +/,true).as(:foo), "end"
+      rule :foo, many?("foo",/ +/,true).as(:foo), match("end").as(:end)
     end
 
-    assert_equal 0,parser.parse("end").foo.length
+    assert_equal nil,parser.parse("end").foo
+    assert_equal "end",parser.parse("end").end.to_s
     assert_equal nil,parser.parse(" end")
     assert_equal nil,parser.parse("foofoo end")
     assert_equal ["foo"], parser.parse("foo end").foo.collect {|f| f.text}
