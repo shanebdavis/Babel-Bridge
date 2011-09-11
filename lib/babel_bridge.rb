@@ -261,12 +261,12 @@ module BabelBridge
       end
     end
 
-
     def parse(src,offset=0,rule=nil)
       reset_parser_tracking
       @start_time=Time.now
       self.src=src
       root_node=RootNode.new(self)
+      raise "No root rule defined." unless rule || self.class.root_rule
       ret=self.class[rule||self.class.root_rule].parse(root_node)
       unless rule
         if ret
