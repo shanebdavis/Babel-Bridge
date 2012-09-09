@@ -13,10 +13,29 @@ class Parser
     def rules
       @rules||={}
     end
+
+    # Add a rule to the parser
+    #
     # rules can be specified as:
-    #   parser.rule :name, to_match1, to_match2, etc...
+    #   rule :name, to_match1, to_match2, etc...
     #or
-    #   parser.rule :name, [to_match1, to_match2, etc...]
+    #   rule :name, [to_match1, to_match2, etc...]
+    #
+    # Can define rules INSIDE class:
+    #   class MyParser < BabelBridge::Parser
+    #     rule :name, to_match1, to_match2, etc...
+    #   end
+    #
+    # Or can define rules OUTSIDE class:
+    #   class MyParser < BabelBridge::Parser
+    #   end
+    #   MyParser.rule :name, to_match1, to_match2, etc...
+    #
+    # The first rule added is the root-rule for the parser.
+    # You can override by: 
+    #   class MyParser < BabelBridge::Parser
+    #     root_rule = :new_root_rool
+    #   end
     def rule(name,*pattern,&block)
       pattern=pattern[0] if pattern[0].kind_of?(Array)
       rule=self.rules[name]||=Rule.new(name,self)
@@ -65,8 +84,6 @@ class Parser
   #   # (succeeds only if keyword is matched, but does not advance the read pointer)
   #   rule :sample_rule, could.match("keyword")
   #
-
-  #   dont.match("keyword") #
   #*********************************************
   class <<self
     def many(m,delimiter=nil,post_delimiter=nil) PatternElementHash.new.match.many(m).delimiter(delimiter).post_delimiter(post_delimiter) end
