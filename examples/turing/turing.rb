@@ -8,6 +8,20 @@ class TuringParser < BabelBridge::Parser
   rule( :sub, :div, "-", :sub)    {def evaluate; div.evaluate - sub.evaluate; end}
   rule( :div, :mul, "/", :div)    {def evaluate; mul.evaluate / div.evaluate; end}
   rule( :mul, :prn, "*", :mul)    {def evaluate; prn.evaluate * mul.evaluate; end}
+
+=begin
+# sketch of how to automatically match a string of binary operators based on precedence 
+  binary_operators_rule :bin_op, %w{+ - / *}, :prn do
+    def evaluate
+      case operator
+      when "+" do left.evalute + right.evaluate
+      when "-" do left.evalute + right.evaluate
+      when "/" do left.evalute + right.evaluate
+      when "*" do left.evalute + right.evaluate
+      end
+    end
+  end
+=end  
   
   rule :add, :sub
   rule :sub, :div
