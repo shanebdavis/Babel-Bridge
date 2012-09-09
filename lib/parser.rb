@@ -1,178 +1,178 @@
 module BabelBridge
-  # primary object used by the client
-  # Used to generate the grammer with .rule methods
-  # Used to parse with .parse
-  class Parser
+# primary object used by the client
+# Used to generate the grammer with .rule methods
+# Used to parse with .parse
+class Parser
 
-    # Parser sub-class grammaer definition
-    # These methods are used in the creation of a Parser Sub-Class to define
-    # its grammar
-    class <<self
-      attr_accessor :rules,:module_name,:root_rule
+  # Parser sub-class grammaer definition
+  # These methods are used in the creation of a Parser Sub-Class to define
+  # its grammar
+  class <<self
+    attr_accessor :rules,:module_name,:root_rule
 
-      def rules
-        @rules||={}
-      end
-      # rules can be specified as:
-      #   parser.rule :name, to_match1, to_match2, etc...
-      #or
-      #   parser.rule :name, [to_match1, to_match2, etc...]
-      def rule(name,*pattern,&block)
-        pattern=pattern[0] if pattern[0].kind_of?(Array)
-        rule=self.rules[name]||=Rule.new(name,self)
-        self.root_rule||=name
-        rule.add_variant(pattern,&block)
-      end
-
-      def node_class(name,&block)
-        klass=self.rules[name].node_class
-        return klass unless block
-        klass.class_eval &block
-      end
-
-      def [](i)
-        rules[i]
-      end
-
-      # rule can be symbol-name of one of the rules in rules_array or one of the actual Rule objects in that array
-      def root_rule=(rule)
-        raise "Symbol required" unless rule.kind_of?(Symbol)
-        raise "rule #{rule.inspect} not found" unless rules[rule]
-        @root_rule=rule
-      end
+    def rules
+      @rules||={}
+    end
+    # rules can be specified as:
+    #   parser.rule :name, to_match1, to_match2, etc...
+    #or
+    #   parser.rule :name, [to_match1, to_match2, etc...]
+    def rule(name,*pattern,&block)
+      pattern=pattern[0] if pattern[0].kind_of?(Array)
+      rule=self.rules[name]||=Rule.new(name,self)
+      self.root_rule||=name
+      rule.add_variant(pattern,&block)
     end
 
-    #*********************************************
-    # pattern construction tools
-    #
-    # Ex:
-    #   # match 'keyword'
-    #   # (succeeds if keyword is matched; advances the read pointer)
-    #   rule :sample_rule, "keyword"
-    #   rule :sample_rule, match("keyword")
-    #
-    #   # don't match 'keyword'
-    #   # (succeeds only if keyword is NOT matched; does not advance the read pointer)
-    #   rule :sample_rule, match!("keyword")
-    #   rule :sample_rule, dont.match("keyword")
-    #
-    #   # optionally match 'keyword'
-    #   # (always succeeds; advances the read pointer if keyword is matched)
-    #   rule :sample_rule, match?("keyword")
-    #   rule :sample_rule, optionally.match("keyword")
-    #
-    #   # ensure we could match 'keyword'
-    #   # (succeeds only if keyword is matched, but does not advance the read pointer)
-    #   rule :sample_rule, could.match("keyword")
-    #
-
-    #   dont.match("keyword") #
-    #*********************************************
-    class <<self
-      def many(m,delimiter=nil,post_delimiter=nil) PatternElementHash.new.match.many(m).delimiter(delimiter).post_delimiter(post_delimiter) end
-      def many?(m,delimiter=nil,post_delimiter=nil) PatternElementHash.new.optionally.match.many(m).delimiter(delimiter).post_delimiter(post_delimiter) end
-      def many!(m,delimiter=nil,post_delimiter=nil) PatternElementHash.new.dont.match.many(m).delimiter(delimiter).post_delimiter(post_delimiter) end
-
-      def match?(*args) PatternElementHash.new.optionally.match(*args) end
-      def match(*args) PatternElementHash.new.match(*args) end
-      def match!(*args) PatternElementHash.new.dont.match(*args) end
-
-      def dont; PatternElementHash.new.dont end
-      def optionally; PatternElementHash.new.optionally end
-      def could; PatternElementHash.new.could end
+    def node_class(name,&block)
+      klass=self.rules[name].node_class
+      return klass unless block
+      klass.class_eval &block
     end
 
-
-    #*********************************************
-    #*********************************************
-    # parser instance implementation
-    # this methods are used for each actual parse run
-    # they are tied to an instnace of the Parser Sub-class to you can have more than one
-    # parser active at a time
-    attr_accessor :failure_index
-    attr_accessor :expecting_list
-    attr_accessor :src
-    attr_accessor :parse_cache
-
-    def initialize
-      reset_parser_tracking
+    def [](i)
+      rules[i]
     end
 
-    def reset_parser_tracking
-      self.src=nil
-      self.failure_index=0
-      self.expecting_list={}
-      self.parse_cache={}
+    # rule can be symbol-name of one of the rules in rules_array or one of the actual Rule objects in that array
+    def root_rule=(rule)
+      raise "Symbol required" unless rule.kind_of?(Symbol)
+      raise "rule #{rule.inspect} not found" unless rules[rule]
+      @root_rule=rule
     end
+  end
 
-    def cached(rule_class,offset)
-      (parse_cache[rule_class]||={})[offset]
+  #*********************************************
+  # pattern construction tools
+  #
+  # Ex:
+  #   # match 'keyword'
+  #   # (succeeds if keyword is matched; advances the read pointer)
+  #   rule :sample_rule, "keyword"
+  #   rule :sample_rule, match("keyword")
+  #
+  #   # don't match 'keyword'
+  #   # (succeeds only if keyword is NOT matched; does not advance the read pointer)
+  #   rule :sample_rule, match!("keyword")
+  #   rule :sample_rule, dont.match("keyword")
+  #
+  #   # optionally match 'keyword'
+  #   # (always succeeds; advances the read pointer if keyword is matched)
+  #   rule :sample_rule, match?("keyword")
+  #   rule :sample_rule, optionally.match("keyword")
+  #
+  #   # ensure we could match 'keyword'
+  #   # (succeeds only if keyword is matched, but does not advance the read pointer)
+  #   rule :sample_rule, could.match("keyword")
+  #
+
+  #   dont.match("keyword") #
+  #*********************************************
+  class <<self
+    def many(m,delimiter=nil,post_delimiter=nil) PatternElementHash.new.match.many(m).delimiter(delimiter).post_delimiter(post_delimiter) end
+    def many?(m,delimiter=nil,post_delimiter=nil) PatternElementHash.new.optionally.match.many(m).delimiter(delimiter).post_delimiter(post_delimiter) end
+    def many!(m,delimiter=nil,post_delimiter=nil) PatternElementHash.new.dont.match.many(m).delimiter(delimiter).post_delimiter(post_delimiter) end
+
+    def match?(*args) PatternElementHash.new.optionally.match(*args) end
+    def match(*args) PatternElementHash.new.match(*args) end
+    def match!(*args) PatternElementHash.new.dont.match(*args) end
+
+    def dont; PatternElementHash.new.dont end
+    def optionally; PatternElementHash.new.optionally end
+    def could; PatternElementHash.new.could end
+  end
+
+
+  #*********************************************
+  #*********************************************
+  # parser instance implementation
+  # this methods are used for each actual parse run
+  # they are tied to an instnace of the Parser Sub-class to you can have more than one
+  # parser active at a time
+  attr_accessor :failure_index
+  attr_accessor :expecting_list
+  attr_accessor :src
+  attr_accessor :parse_cache
+
+  def initialize
+    reset_parser_tracking
+  end
+
+  def reset_parser_tracking
+    self.src=nil
+    self.failure_index=0
+    self.expecting_list={}
+    self.parse_cache={}
+  end
+
+  def cached(rule_class,offset)
+    (parse_cache[rule_class]||={})[offset]
+  end
+
+  def cache_match(rule_class,match)
+    (parse_cache[rule_class]||={})[match.offset]=match
+  end
+
+  def cache_no_match(rule_class,offset)
+    (parse_cache[rule_class]||={})[offset]=:no_match
+  end
+
+  def log_parsing_failure(index,expecting)
+    if index>failure_index
+      key=expecting[:pattern]
+      @expecting_list={key=>expecting}
+      @failure_index = index
+    elsif index == failure_index
+      key=expecting[:pattern]
+      self.expecting_list[key]=expecting
+    else
+      # ignored
     end
+  end
 
-    def cache_match(rule_class,match)
-      (parse_cache[rule_class]||={})[match.offset]=match
-    end
-
-    def cache_no_match(rule_class,offset)
-      (parse_cache[rule_class]||={})[offset]=:no_match
-    end
-
-    def log_parsing_failure(index,expecting)
-      if index>failure_index
-        key=expecting[:pattern]
-        @expecting_list={key=>expecting}
-        @failure_index = index
-      elsif index == failure_index
-        key=expecting[:pattern]
-        self.expecting_list[key]=expecting
-      else
-        # ignored
-      end
-    end
-
-    def parse(src,offset=0,rule=nil)
-      reset_parser_tracking
-      @start_time=Time.now
-      self.src=src
-      root_node=RootNode.new(self)
-      raise "No root rule defined." unless rule || self.class.root_rule
-      ret=self.class[rule||self.class.root_rule].parse(root_node)
-      unless rule
-        if ret
-          if ret.next<src.length # parse only succeeds if the whole input is matched
-            @parsing_did_not_match_entire_input=true
-            @failure_index=ret.next
-            ret=nil
-          else
-            reset_parser_tracking
-          end
+  def parse(src,offset=0,rule=nil)
+    reset_parser_tracking
+    @start_time=Time.now
+    self.src=src
+    root_node=RootNode.new(self)
+    raise "No root rule defined." unless rule || self.class.root_rule
+    ret=self.class[rule||self.class.root_rule].parse(root_node)
+    unless rule
+      if ret
+        if ret.next<src.length # parse only succeeds if the whole input is matched
+          @parsing_did_not_match_entire_input=true
+          @failure_index=ret.next
+          ret=nil
+        else
+          reset_parser_tracking
         end
       end
-      @end_time=Time.now
-      ret
     end
+    @end_time=Time.now
+    ret
+  end
 
-    def parse_time
-      @end_time-@start_time
+  def parse_time
+    @end_time-@start_time
+  end
+
+  def parse_and_puts_errors(src,out=$stdout)
+    ret=parse(src)
+    unless ret
+      out.puts parser_failure_info
     end
+    ret
+  end
 
-    def parse_and_puts_errors(src,out=$stdout)
-      ret=parse(src)
-      unless ret
-        out.puts parser_failure_info
-      end
-      ret
-    end
+  def node_list_string(node_list,common_root=[])
+    node_list && node_list[common_root.length..-1].map{|p|"#{p.class}(#{p.offset})"}.join(" > ")
+  end
 
-    def node_list_string(node_list,common_root=[])
-      node_list && node_list[common_root.length..-1].map{|p|"#{p.class}(#{p.offset})"}.join(" > ")
-    end
-
-    def parser_failure_info
-      return unless src
-      bracketing_lines=5
-      line,col=src.line_col(failure_index)
-      ret=<<-ENDTXT
+  def parser_failure_info
+    return unless src
+    bracketing_lines=5
+    line,col=src.line_col(failure_index)
+    ret=<<-ENDTXT
 Parsing error at line #{line} column #{col} offset #{failure_index}
 
 Source:
@@ -211,8 +211,8 @@ Expecting#{expecting_list.length>1 ? ' one of' : ''}:
     [list,"#{a[:pattern].inspect} (#{list})"]
   end.sort.map{|i|i[1]}.join("\n  ")}
 ENDTXT
-      end
-      ret
     end
+    ret
   end
+end
 end

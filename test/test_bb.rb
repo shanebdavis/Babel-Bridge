@@ -1,5 +1,5 @@
-require File.dirname(__FILE__) + "/../lib/babel_bridge"
-require File.dirname(__FILE__) + "/test_helper"
+require File.expand_path(File.join(File.dirname(__FILE__),"..","lib","babel_bridge"))
+require File.expand_path(File.join(File.dirname(__FILE__),"test_helper"))
 
 class BBTests < TestHelper
 
