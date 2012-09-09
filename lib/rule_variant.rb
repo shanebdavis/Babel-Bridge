@@ -11,14 +11,6 @@ class RuleVariant
     @variant_node_class = variant_node_class
   end
 
-  def inspect
-    pattern.collect {|a| a.inspect}.join(', ')
-  end
-
-  def to_s
-    "variant_class: #{variant_node_class}, pattern: #{inspect}"
-  end
-
   # convert the pattern into a set of lamba functions
   def pattern_elements
     @pattern_elements||=pattern.collect { |match| PatternElement.new match, self }
@@ -46,5 +38,8 @@ class RuleVariant
     end
     node
   end
+
+  def inspect; pattern.collect {|a| a.inspect}.join(', '); end
+  def to_s; "variant_class: #{variant_node_class}, pattern: #{inspect}"; end  
 end
 end
