@@ -6,6 +6,7 @@ http://babel-bridge.rubyforge.org/
 
 require File.dirname(__FILE__) + "/nodes.rb"
 require File.dirname(__FILE__) + "/pattern_element.rb"
+require File.dirname(__FILE__) + "/shell.rb"
 
 class String
   def camelize

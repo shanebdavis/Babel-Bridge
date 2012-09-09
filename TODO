@@ -1,3 +1,12 @@
+2011-08-13
+----------
+
+Arbitrary nesting of patterns. Importantly, including an or(a,b) pattern matcher. This just streamlines some rules into one-liners.
+
+When matching "many(:stick)", it would be nice to be able to refer to all the matches as "sticks" not "stick". Need "pluralize".
+
+When "parser did not match entire input." I want to also output the equivelent of "was expecting": "could have continued if found..."
+
 2010-12-24 Left-Recursion
 ----------
 

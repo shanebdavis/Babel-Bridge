@@ -1,0 +1,4 @@
+2012-08-09
+
+    forward_to now scans all patern elements for the first one that responds to the method
+    added shell

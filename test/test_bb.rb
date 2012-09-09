@@ -287,7 +287,9 @@ class BBTests < TestHelper
       rule :foo, {:parser=>lambda do |parent_node|
         offset=parent_node.next
         src=parent_node.src
-        if src.index(/[A-Z]+/,offset)==offset
+
+        # Note, the \A anchors the search at the beginning of the string
+        if src[offset..-1].index(/\A[A-Z]+/)==0
           endpattern=$~.to_s
           if i=src.index(endpattern,offset+endpattern.length)
             BabelBridge::TerminalNode.new(parent_node,i+endpattern.length-offset,"endpattern")
@@ -299,6 +301,7 @@ class BBTests < TestHelper
     assert parser.parse("END this is in the middle END")
     assert_equal "END this is in END",parser.parse("END this is in END the middle END",0,:foo).text
     assert_nil parser.parse("END this is in the middle EN")
+    assert_nil parser.parse("    END this is in the middle END")
   end
 
   def test_poly

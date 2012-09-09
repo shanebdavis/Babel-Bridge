@@ -158,13 +158,20 @@ module BabelBridge
     end
 
     # defines where to forward missing methods to; override for custom behavior
-    def forward_to
-      matches[0]
+    def forward_to(method_name)
+      matches.each {|m| return m if m.respond_to?(method_name)}
+      nil
+    end
+
+    def respond_to?(method_name)
+      super ||
+      matches_by_name[method_name] ||
+      forward_to(method_name)
     end
 
     def method_missing(method_name, *args)  #method_name is a symbol
       unless matches_by_name.has_key? method_name
-        if f=forward_to
+        if f=forward_to(method_name)
           return f.send(method_name,*args)
         end
         raise "#{self.class}: missing method #{method_name.inspect} / doesn't match named pattern element: #{matches_by_name.keys.inspect}"
