@@ -3,20 +3,20 @@ module BabelBridge
 # Each Rule has one or more RuleVariant
 # Rules attempt to match each of their Variants in order. The first one to succeed returns true and the Rule succeeds.
 class RuleVariant
-  attr_accessor :pattern,:rule,:node_class
+  attr_accessor :pattern, :rule, :variant_node_class
 
-  def initialize(pattern,rule,node_class=nil)
-    self.pattern=pattern
-    self.rule=rule
-    self.node_class=node_class
+  def initialize(pattern, rule, variant_node_class=nil)
+    @pattern = pattern
+    @rule = rule
+    @variant_node_class = variant_node_class
   end
 
   def inspect
-    pattern.collect{|a|a.inspect}.join(', ')
+    pattern.collect {|a| a.inspect}.join(', ')
   end
 
   def to_s
-    "variant_class: #{node_class}, pattern: #{inspect}"
+    "variant_class: #{variant_node_class}, pattern: #{inspect}"
   end
 
   # convert the pattern into a set of lamba functions
@@ -27,7 +27,7 @@ class RuleVariant
   # returns a Node object if it matches, nil otherwise
   def parse(parent_node)
     #return parse_nongreedy_optional(src,offset,parent_node) # nongreedy optionals break standard PEG
-    node=node_class.new(parent_node)
+    node = variant_node_class.new(parent_node)
 
     pattern_elements.each do |pe|
       match=pe.parse(node)
