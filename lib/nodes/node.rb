@@ -35,6 +35,12 @@ class Node
     node_init(parent)
   end
 
+  # after a node has been matched, the node will get this called on itself
+  # It can then rewrite itself however it wishes
+  def post_match
+    self
+  end
+
   #********************
   # info methods
   #********************

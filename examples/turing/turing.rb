@@ -1,35 +1,48 @@
 require File.join(File.dirname(__FILE__),"..","..","lib","babel_bridge")
 
 class TuringParser < BabelBridge::Parser
+  def store
+    @store||=[]
+  end
 
-  rule :expr, :add
+  rule :statement, :if_statement
+  rule :statement, :store_statement
+  rule :statement, :expr
+  
+  rule :store_statement, "[", :statement, "]=", :statement do
+    def evaluate
+      parser.store[matches[1].evaluate] = matches[3].evaluate
+    end
+  end
+  
+  rule :if_statement, /if\s+/, :statement, /then\s+/, :statement, /else\s+/, :statement, /end\b/ do
+    def evaluate
+      statement[0].evaluate ? statement[1].evaluate : statement[2].evaluate
+    end
+  end
 
-  rule( :add, :sub, "+", :add)    {def evaluate; sub.evaluate + add.evaluate; end}
-  rule( :sub, :div, "-", :sub)    {def evaluate; div.evaluate - sub.evaluate; end}
-  rule( :div, :mul, "/", :div)    {def evaluate; mul.evaluate / div.evaluate; end}
-  rule( :mul, :prn, "*", :mul)    {def evaluate; prn.evaluate * mul.evaluate; end}
+  rule :expr, :bin_op
+  rule :expr, :fetch_expr
 
-=begin
-# sketch of how to automatically match a string of binary operators based on precedence 
-  binary_operators_rule :bin_op, %w{+ - / *}, :prn do
+  rule :fetch_expr, "[", :statement, "]" do
+    def evaluate
+      parser.store[statement.evaluate]
+    end
+  end
+
+  binary_operators_rule :bin_op, :paren_expr, [[:<, :<=, :>, :>=, :==], [:+, :-], [:/, :*]] do
     def evaluate
       case operator
-      when "+" do left.evalute + right.evaluate
-      when "-" do left.evalute + right.evaluate
-      when "/" do left.evalute + right.evaluate
-      when "*" do left.evalute + right.evaluate
+      when :<, :<=, :>, :>=, :==
+        (left.evaluate.send operator, right.evaluate) ? 1 : nil
+      else
+        left.evaluate.send operator, right.evaluate
       end
     end
   end
-=end  
-  
-  rule :add, :sub
-  rule :sub, :div
-  rule :div, :mul
-  rule :mul, :prn
 
-  rule :prn, "(", :expr, ")"
-  rule :prn, :int
+  rule :paren_expr, "(", :statement, ")"
+  rule :paren_expr, :int
 
   rule :int, /[-]?[0-9]+/ do
     def evaluate; to_s.to_i; end

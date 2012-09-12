@@ -156,7 +156,7 @@ class PatternElement
           many_node<<last_match
 
           #match delimiter
-          delimiter_match=delimiter_pattern_element.parse(many_node)
+          delimiter_match = delimiter_pattern_element.parse(many_node)
           break unless delimiter_match
           many_node.delimiter_matches<<delimiter_match
 

@@ -5,6 +5,7 @@ http://babel-bridge.rubyforge.org/
 =end
 
 %w{
+  tools
   string
   version
   nodes

@@ -1,3 +1,42 @@
+2012-08-12
+
+    using readline for shell
+
+    added support for infix binary operator presedence resolution:
+
+        USAGE:
+
+              binary_operators_rule :any_rule_name, :operands_pattern, operators
+
+            Where "operators" is an array of operators, ordered by precedence such as: ["+", "-", "*", "/"].
+
+            The last operators in the array are matched first.
+
+            You can also group operators into the same precedence level: [["+", "-"], ["*", "/"]]
+
+            Operators in the same precedence level are matched left-to-right. 
+
+        TODO: 
+
+            The core code supports right-to-left, too, I just haven't implemented a way to express it in the binary_operators_rule's operators parameter
+
+        MATCHING:
+
+              binary_operators_rule :any_rule_name, :operands_pattern, ["+", "-", "*", "/"]
+
+            matches the same string as:
+
+              rule :any_rule_name, many(:operands_pattern,/[-+*\/]/)
+
+        PARSE TREE:
+
+            The resulting parse-tree consists of 1 or more instances of the :any_rule_name rule's varient class. Each node has methods for easy acess to:
+
+                left -> the left operand node
+                right -> the right operand node
+                operator -> the operator as a symbol
+                operator_node -> the operator node
+
 2012-08-09
 
     forward_to now scans all patern elements for the first one that responds to the method

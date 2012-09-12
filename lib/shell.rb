@@ -1,3 +1,5 @@
+require "readline"
+
 module BabelBridge
 class Shell
   attr_accessor :parser
@@ -11,15 +13,13 @@ class Shell
     stdout = options[:stdout] || $stdout
     stderr = options[:stdout] || stdout
     stdin = options[:stdin] || $stdin
-    while true
-      stdout.print "> "
-      line = stdin.gets
+    while line = Readline.readline("> ", true)
       ret = parser.parse line.strip
       if ret
         if block
           yield ret
         else
-          stdout.puts " => #{ret.evaluate}"
+          stdout.puts " => #{ret.evaluate.inspect}"
         end
       else
         stderr.puts parser.parser_failure_info

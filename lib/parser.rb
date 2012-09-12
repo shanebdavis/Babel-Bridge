@@ -36,11 +36,44 @@ class Parser
     #   class MyParser < BabelBridge::Parser
     #     root_rule = :new_root_rool
     #   end
+    #
+    # The block is executed in the context of the rule-varient's node type, a subclass of: NonTerminalNode
+    # This allows you to add whatever functionality you want to a your nodes in the final parse tree.
+    # Also note you can override the post_match method. This allows you to restructure the parse tree as it is parsed.
     def rule(name,*pattern,&block)
       pattern=pattern[0] if pattern[0].kind_of?(Array)
       rule=self.rules[name]||=Rule.new(name,self)
       self.root_rule||=name
       rule.add_variant(pattern,&block)
+    end
+
+    def binary_operators_rule(name,elements_pattern,operators,&block)
+      rule(name,many(elements_pattern,Tools::array_to_or_regexp(operators))) do 
+        self.class_eval &block if block
+        class <<self
+          attr_accessor :operators_from_rule
+          def operator_processor
+            @operator_processor||=BinaryOperatorProcessor.new(operators_from_rule,self)
+          end
+        end
+        self.operators_from_rule=operators
+
+        def operator
+          @operator||=operator_node.to_s.to_sym
+        end
+
+        # Override the post_match method to take the results of the "many" match
+        # and restructure it into a binary tree of nodes based on the precidence of
+        # the "operators".
+        # TODO - I think maybe post_match should be run after the whole tree matches. If not, will this screw up caching?
+        def post_match
+          many_match = matches[0]
+          operands = many_match.matches
+          operators = many_match.delimiter_matches
+          # TODO - now! take many_match.matches and many_match.delimiter_matches, mishy-mashy, and make the super-tree!
+          self.class.operator_processor.generate_tree operands, operators, parent
+        end
+      end
     end
 
     def node_class(name,&block)

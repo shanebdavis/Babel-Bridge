@@ -36,7 +36,7 @@ class RuleVariant
       # parse succeeded, add to node and continue
       node.add_match(match,pe.name)
     end
-    node
+    node.post_match
   end
 
   def inspect; pattern.collect {|a| a.inspect}.join(', '); end
