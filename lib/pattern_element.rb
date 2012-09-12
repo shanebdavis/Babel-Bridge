@@ -9,6 +9,7 @@ module BabelBridge
 class PatternElementHash < Hash
   def method_missing(method_name, *args)  #method_name is a symbol
     return self if args.length==1 && !args[0] # if nil is provided, don't set anything
+    raise "More than one argument is not supported. #{self.class}##{method_name} args=#{args.inspect}" if args.length > 1
     self[method_name]=args[0] || true # on the other hand, if no args are provided, assume true
     self
   end
