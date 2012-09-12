@@ -92,6 +92,18 @@ class Parser
       raise "rule #{rule.inspect} not found" unless rules[rule]
       @root_rule=rule
     end
+
+    def ignore_whitespace
+      @ignore_whitespace = true
+    end
+
+    def ignore_whitespace?
+      @ignore_whitespace
+    end
+  end
+
+  def ignore_whitespace?
+    self.class.ignore_whitespace?
   end
 
   #*********************************************
