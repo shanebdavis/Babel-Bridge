@@ -12,13 +12,15 @@ class TestParser < BabelBridge::Parser
   end
 
   #rule :bin_op, many(:int,/[-+\/*]/) do
-  binary_operators_rule :bin_op, :int, [%w{+ -},[:/, :*]] do
+  binary_operators_rule :bin_op, :operand, [[:+, "-"], [:/, :*], "**"], :right_operators => ["**"] do
     def evaluate  
       "(#{left.evaluate}#{operator}#{right.evaluate})"
     end
   end
+
+  rule :operand, "(", :bin_op, ")"
  
-  rule :int, /[-]?[0-9]+/ do
+  rule :operand, /[-]?[0-9]+/ do
     def evaluate; to_s; end
   end
 end

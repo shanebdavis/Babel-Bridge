@@ -47,16 +47,21 @@ class Parser
       rule.add_variant(pattern,&block)
     end
 
-    def binary_operators_rule(name,elements_pattern,operators,&block)
+    # options
+    # => right_operators: list of all operators that should be evaluated right to left instead of left-to-write
+    #       typical example is the "**" exponentiation operator which should be evaluated right-to-left.
+    def binary_operators_rule(name,elements_pattern,operators,options={},&block)
+      right_operators = options[:right_operators]
       rule(name,many(elements_pattern,Tools::array_to_or_regexp(operators))) do 
         self.class_eval &block if block
         class <<self
-          attr_accessor :operators_from_rule
+          attr_accessor :operators_from_rule, :right_operators
           def operator_processor
-            @operator_processor||=BinaryOperatorProcessor.new(operators_from_rule,self)
+            @operator_processor||=BinaryOperatorProcessor.new(operators_from_rule,self,right_operators)
           end
         end
-        self.operators_from_rule=operators
+        self.right_operators = right_operators
+        self.operators_from_rule = operators
 
         def operator
           @operator||=operator_node.to_s.to_sym

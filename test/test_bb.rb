@@ -381,6 +381,38 @@ class BBTests < TestHelper
     assert_equal({:match=>";",:could=>true}, BabelBridge::Parser.could.match(";"))
   end
 
+  def test_ignore_whitespace
+    parser=new_parser do
+      ignore_whitespace
+      rule :pair, "foo", "bar"
+    end
+    assert parser.parse("foobar")
+    assert parser.parse("foo   bar")
+    assert parser.parse("foobar   ")
+    assert parser.parse("foo bar     ")
+  end
+
+  def test_binary_operator_rule
+    parser=new_parser do
+      binary_operators_rule :bin_op, :int, [[:+, "-"], [:/, :*], "**"], :right_operators => ["**"] do
+        def evaluate  
+          "(#{left.evaluate}#{operator}#{right.evaluate})"
+        end
+      end
+     
+      rule :int, /[-]?[0-9]+/ do
+        def evaluate; to_s; end
+      end
+    end
+    assert_equal "(1+2)",     parser.parse("1+2").evaluate
+    assert_equal "((1+2)+3)", parser.parse("1+2+3").evaluate
+    assert_equal "(1+(2*3))", parser.parse("1+2*3").evaluate
+    assert_equal "((1*2)+3)", parser.parse("1*2+3").evaluate
+    assert_equal "(5**6)", parser.parse("5**6").evaluate
+    assert_equal "((1-2)+((3*4)/(5**6)))", parser.parse("1-2+3*4/5**6").evaluate
+    assert_equal "(5**(6**7))", parser.parse("5**6**7").evaluate
+  end
+
   def disabled_test_recursive_block
     # PEG does have this problem, so this isn't really an error
     # But maybe in the future we'll handle it better.
@@ -392,6 +424,7 @@ class BBTests < TestHelper
     end
     parser.parse "-"
   end
+
 
 
   def regex_performance

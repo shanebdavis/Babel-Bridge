@@ -4,21 +4,29 @@ class Tools
 
     # Takes an array of Strings and Regexp and generates a new Regexp 
     # that matches the or ("|") of all strings and Regexp
-    def array_to_or_regexp(array)
+    def array_to_or_regexp_string(array)
       new_re=array.flatten.collect do |op|
         "("+case op
         when Regexp then op.source
         when String, Symbol then Regexp.escape(op.to_s)
         end+")"
-      end.join('|')
-      Regexp.new new_re
+      end.sort{|a|a.length}.join('|')
+    end
+
+    def array_to_anchored_or_regexp(array)
+      Regexp.new "^"+array_to_or_regexp_string(array)+"$"
+    end
+
+    def array_to_or_regexp(array)
+      Regexp.new array_to_or_regexp_string(array)
     end
   end
 end
 
 class BinaryOperatorProcessor
-  attr_accessor :node_class, :exact_operator_precedence, :regexp_operator_precedence
-  def initialize(operator_precedence,node_class)
+  attr_accessor :node_class, :exact_operator_precedence, :regexp_operator_precedence, :right_operators
+  def initialize(operator_precedence,node_class,right_operators)
+    @right_operators_regexp= right_operators && Tools::array_to_anchored_or_regexp(right_operators)
     @node_class=node_class
     @exact_operator_precedence={}
     @regexp_operator_precedence=[]
@@ -48,8 +56,10 @@ class BinaryOperatorProcessor
   def index_of_lowest_precedence(operators,associativity=:left)
     lowest = lowest_precedence = nil
     operators.each_with_index do |operator,i|
-      precedence = operator_precedence(operator.to_s)
-      if !lowest || (associativity==:left ? precedence <= lowest_precedence : precedence < lowest_precedence)
+      operator_string = operator.to_s
+      precedence = operator_precedence(operator_string)
+      right_associative = @right_operators_regexp && operator_string[@right_operators_regexp]
+      if !lowest || (right_associative ? precedence < lowest_precedence : precedence <= lowest_precedence)
         lowest = i
         lowest_precedence = precedence
       end

@@ -6,7 +6,7 @@
 
         USAGE:
 
-              binary_operators_rule :any_rule_name, :operands_pattern, operators
+              binary_operators_rule :any_rule_name, :operands_pattern, operators, [:right_operators => [...]]
 
             Where "operators" is an array of operators, ordered by precedence such as: ["+", "-", "*", "/"].
 
@@ -16,9 +16,7 @@
 
             Operators in the same precedence level are matched left-to-right. 
 
-        TODO: 
-
-            The core code supports right-to-left, too, I just haven't implemented a way to express it in the binary_operators_rule's operators parameter
+            You optionally can list one or more "right_operators" - which can be strings or regexps - to specify which operators are right-associative.
 
         MATCHING:
 
