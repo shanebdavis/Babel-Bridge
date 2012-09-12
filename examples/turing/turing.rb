@@ -1,36 +1,42 @@
 require File.join(File.dirname(__FILE__),"..","..","lib","babel_bridge")
 
 class TuringParser < BabelBridge::Parser
+  ignore_whitespace
+
   def store
     @store||=[]
   end
 
-  rule :statement, :if_statement
-  rule :statement, :store_statement
-  rule :statement, :expr
-  
-  rule :store_statement, "[", :statement, "]=", :statement do
+  rule :statements, many(:statement,";"), match?(";") do
     def evaluate
-      parser.store[matches[1].evaluate] = matches[3].evaluate
-    end
-  end
-  
-  rule :if_statement, /if\s+/, :statement, /then\s+/, :statement, /else\s+/, :statement, /end\b/ do
-    def evaluate
-      statement[0].evaluate ? statement[1].evaluate : statement[2].evaluate
+      ret = nil
+      statement.each do |s|
+        ret = s.evaluate
+      end
+      ret
     end
   end
 
-  rule :expr, :bin_op
-  rule :expr, :fetch_expr
-
-  rule :fetch_expr, "[", :statement, "]" do
+  rule :statement, /if\b/, :statement, /then\b/, :statement, :else_clause?, /end\b/ do
     def evaluate
-      parser.store[statement.evaluate]
+      if statement[0].evaluate
+        statement[1].evaluate
+      else 
+        else_clause.evaluate if else_clause
+      end
+    end
+  end
+  rule :else_clause, /else\b/, :statement
+
+  rule :statement, /while\b/, :statement, /do\b/, :statements, /end\b/ do
+    def evaluate
+      while statement.evaluate
+        statements.evaluate
+      end
     end
   end
 
-  binary_operators_rule :bin_op, :paren_expr, [[:<, :<=, :>, :>=, :==], [:+, :-], [:/, :*]] do
+  binary_operators_rule :statement, :operand, [[:<, :<=, :>, :>=, :==], [:+, :-], [:/, :*]] do
     def evaluate
       case operator
       when :<, :<=, :>, :>=, :==
@@ -41,11 +47,24 @@ class TuringParser < BabelBridge::Parser
     end
   end
 
-  rule :paren_expr, "(", :statement, ")"
-  rule :paren_expr, :int
+  rule :operand, "(", :statement, ")"
+  
+  rule :operand, "[", :statement, "]", "=", :statement do
+    def evaluate
+      parser.store[statement[0].evaluate] = statement[1].evaluate
+    end
+  end
 
-  rule :int, /[-]?[0-9]+/ do
-    def evaluate; to_s.to_i; end
+  rule :operand, "[", :statement, "]" do
+    def evaluate
+      parser.store[statement.evaluate]
+    end
+  end
+
+  rule :operand, /[-]?[0-9]+/ do
+    def evaluate
+      to_s.to_i
+    end
   end
 end
 
