@@ -36,7 +36,9 @@ module BabelBridge
       ret=list.collect {|a|a.inspect(options)}.compact
       ret= if ret.length==0 then simple ? nil : "[]"
       elsif ret.length==1 && !ret[0]["\n"] then (simple ? ret[0] : "[#{ret[0]}]")
-      else (simple ? ret : ["[",ret,"]"]).flatten.join("\n") #.gsub("\n","\n  ")
+      else 
+        ret = ret.collect {|a| "  "+a.gsub("\n","\n  ")}
+        (simple ? ret : ["[",ret,"]"]).flatten.join("\n") #.gsub("\n","\n  ")
       end
       ret
     end
