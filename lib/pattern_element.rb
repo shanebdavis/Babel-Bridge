@@ -32,6 +32,10 @@ class PatternElement
     raise "pattern element cannot be both :dont and :optional" if negative && optional
   end
 
+  def inspect
+    "<PatternElement rule_variant=#{rule_variant.variant_node_class} match=#{match.inspect}>"
+  end
+
   def to_s
     match.inspect
   end
@@ -49,6 +53,11 @@ class PatternElement
 
     # Could-match patterns (PEG: &element)
     match.match_length=0 if match && could_match
+
+    if !match && terminal
+      # log failures on Terminal patterns for debug output if overall parse fails
+      parent_node.parser.log_parsing_failure(parent_node.next,:pattern=>self.match,:node=>parent_node)
+    end
 
     # return match
     match
@@ -139,7 +148,7 @@ class PatternElement
 
     # generate delimiter_pattern_element
     delimiter_pattern_element= hash[:delimiter] && PatternElement.new(hash[:delimiter],rule_variant)
-
+    
     # generate post_delimiter_element
     post_delimiter_element=hash[:post_delimiter] && case hash[:post_delimiter]
     when TrueClass then delimiter_pattern_element

@@ -25,13 +25,7 @@ class RuleVariant
       match=pe.parse(node)
 
       # if parse failed
-      if !match
-        if pe.terminal
-          # log failures on Terminal patterns for debug output if overall parse fails
-          node.parser.log_parsing_failure(node.next,:pattern=>pe.match,:node=>node)
-        end
-        return nil
-      end
+      return if !match
 
       # parse succeeded, add to node and continue
       node.add_match(match,pe.name)
