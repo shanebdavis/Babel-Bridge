@@ -2,15 +2,29 @@ module BabelBridge
 class Tools
   class << self
 
+    def symbols_to_strings(array)
+      array.collect {|op| op.kind_of?(Symbol) ? op.to_s : op}
+    end
+
+    def regexp_and_strings_to_regexpstrings(array)
+      array.collect {|op| op.kind_of?(Regexp) ? op.source : Regexp.escape(op)}
+    end
+
+    # sort strings first, regexp second
+    # sort strings by lenght, longest first
+    # will then match first to last
+    def sort_operator_patterns(array)
+      array.sort_by {|a| a.kind_of?(Regexp) ? 0 : -a.length}
+    end
+
     # Takes an array of Strings and Regexp and generates a new Regexp 
     # that matches the or ("|") of all strings and Regexp
     def array_to_or_regexp_string(array)
-      new_re=array.flatten.collect do |op|
-        "("+case op
-        when Regexp then op.source
-        when String, Symbol then Regexp.escape(op.to_s)
-        end+")"
-      end.sort{|a|a.length}.join('|')
+      array = symbols_to_strings array.flatten
+      array = sort_operator_patterns array
+      array = regexp_and_strings_to_regexpstrings array
+
+      array.collect {|op| "(#{op})"}.join('|').tap {|a| puts "array_to_or_regexp_string(#{array.inspect}) -> /#{a}/"}
     end
 
     def array_to_anchored_or_regexp(array)
@@ -33,9 +47,10 @@ class BinaryOperatorProcessor
 
     operator_precedence.each_with_index do |op_level,i|
       (op_level.kind_of?(Array) ? op_level : [op_level]).each do |op|
+        precedence = operator_precedence.length - i
         case op
-        when String, Symbol then @exact_operator_precedence[op.to_s] = i
-        when Regexp then @regexp_operator_precedence << [op,i]
+        when String, Symbol then @exact_operator_precedence[op.to_s] = precedence
+        when Regexp then @regexp_operator_precedence << [op,precedence]
         end
       end
     end
