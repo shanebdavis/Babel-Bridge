@@ -9,9 +9,10 @@ class Shell
 
   def evaluate(parse_tree_node)
     if parse_tree_node.respond_to? :evaluate
-      parse_tree_node.evaluate
+      "result> "+parse_tree_node.evaluate.inspect
     else
-      parse_tree_node
+      "\nParse tree:\n  "+
+      parse_tree_node.inspect.gsub("\n","\n  ")+"\n\n"
     end
   rescue Exception => e
     @stderr.puts "Error evaluating parse tree: #{e}\n  "+e.backtrace.join("\n  ")+"\nParse Tree:\n"+parse_tree_node.inspect
@@ -23,13 +24,15 @@ class Shell
     @stdout = options[:stdout] || $stdout
     @stderr = options[:stdout] || @stdout
     @stdin = options[:stdin] || $stdin
-    while line = @stdin == $stdin ? Readline.readline("> ", true) : @stdin.gets
-      ret = parser.parse line.strip
+    while line = @stdin == $stdin ? Readline.readline("> ", true) : @stdin.gets      
+      line.strip!
+      next if line.length==0
+      ret = parser.parse line
       if ret
         if block
           yield ret
         else
-          @stdout.puts " => #{evaluate(ret).inspect}"
+          @stdout.puts evaluate(ret)
         end
       else
         @stderr.puts parser.parser_failure_info
