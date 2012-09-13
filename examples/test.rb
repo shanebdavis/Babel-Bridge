@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__),"..","..","lib","babel_bridge")
+require File.join(File.dirname(__FILE__),"..","lib","babel_bridge")
 
 class TestParser < BabelBridge::Parser
 
@@ -11,9 +11,12 @@ class TestParser < BabelBridge::Parser
     end
   end
 
-  #rule :bin_op, many(:int,/[-+\/*]/) do
-  binary_operators_rule :bin_op, :operand, [[:+, "-"], [:/, :*], "**"], :right_operators => ["**"] do
-    def evaluate  
+  #rule :bin_op, :operand, "+", :operand do
+  #rule :bin_op, many(:operand,"+") do
+  #rule :bin_op, :operand, /([-+\/*])|(\*\*)/, :bin_op do
+  #rule :bin_op, many(:operand,/([-+\/*])|(\*\*)/) do
+  binary_operators_rule :bin_op, :operand, ["**", [:/, :*], [:+, "-"]], :right_operators => ["**"] do
+    def evaluate 
       "(#{left.evaluate}#{operator}#{right.evaluate})"
     end
   end

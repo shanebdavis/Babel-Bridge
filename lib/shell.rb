@@ -9,7 +9,7 @@ class Shell
 
   def evaluate(parse_tree_node)
     if parse_tree_node.respond_to? :evaluate
-      "result> "+parse_tree_node.evaluate.inspect
+      " => "+parse_tree_node.evaluate.inspect
     else
       "\nParse tree:\n  "+
       parse_tree_node.inspect.gsub("\n","\n  ")+"\n\n"
