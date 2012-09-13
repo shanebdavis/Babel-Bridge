@@ -394,7 +394,7 @@ class BBTests < TestHelper
 
   def test_binary_operator_rule
     parser=new_parser do
-      binary_operators_rule :bin_op, :int, [[:+, "-"], [:/, :*], "**"], :right_operators => ["**"] do
+      binary_operators_rule :bin_op, :int, ["**", [:/, :*], [:+, "-"]], :right_operators => ["**"] do
         def evaluate  
           "(#{left.evaluate}#{operator}#{right.evaluate})"
         end
@@ -408,9 +408,24 @@ class BBTests < TestHelper
     assert_equal "((1+2)+3)", parser.parse("1+2+3").evaluate
     assert_equal "(1+(2*3))", parser.parse("1+2*3").evaluate
     assert_equal "((1*2)+3)", parser.parse("1*2+3").evaluate
-    assert_equal "(5**6)", parser.parse("5**6").evaluate
+    assert_equal "(5**6)",    parser.parse("5**6").evaluate
     assert_equal "((1-2)+((3*4)/(5**6)))", parser.parse("1-2+3*4/5**6").evaluate
     assert_equal "(5**(6**7))", parser.parse("5**6**7").evaluate
+  end
+
+  def test_line_col
+    assert_equal [1,1], "".line_col(0)
+    assert_equal [1,1], " ".line_col(0)
+    assert_equal [1,1], "a\nbb\nccc".line_col(0)
+    assert_equal [1,2], "a\nbb\nccc".line_col(1)
+    assert_equal [2,1], "a\nbb\nccc".line_col(2)
+    assert_equal [2,2], "a\nbb\nccc".line_col(3)
+    assert_equal [2,3], "a\nbb\nccc".line_col(4)
+    assert_equal [3,1], "a\nbb\nccc".line_col(5)
+    assert_equal [3,2], "a\nbb\nccc".line_col(6)
+    assert_equal [3,3], "a\nbb\nccc".line_col(7)
+    assert_equal [3,4], "a\nbb\nccc".line_col(8)
+    assert_equal [3,4], "a\nbb\nccc".line_col(9)
   end
 
   def disabled_test_recursive_block
