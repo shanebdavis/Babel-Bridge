@@ -41,6 +41,13 @@ class Node
     self
   end
 
+  # Returns a human-readable representation of the parse tree
+  # options
+  #   :simple => output a simplified representation of the parse tree
+  def inspect(options={})
+    "(TODO: def #{self.class}#inspect(options={}))"
+  end
+
   #********************
   # info methods
   #********************
