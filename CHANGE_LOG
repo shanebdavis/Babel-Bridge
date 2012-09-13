@@ -1,3 +1,11 @@
+2012-08-13
+
+    Reversed the precedence order for binary_operators_rule. The first element has the highest precedence, i.e., it is computed first.
+
+    Now, the correct precedence order for the basic operators is:
+    
+        [["*", "/"], ["+", "-"]]
+
 2012-08-12
 
     using readline for shell
