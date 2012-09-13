@@ -8,9 +8,13 @@ class Shell
   end
 
   def evaluate(parse_tree_node)
-    parse_tree_node.evaluate
+    if parse_tree_node.respond_to? :evaluate
+      parse_tree_node.evaluate
+    else
+      parse_tree_node
+    end
   rescue Exception => e
-    @stderr.puts "Error evaluating parse tree: #{e}\n  "+e.backtrace.join("\n  ")
+    @stderr.puts "Error evaluating parse tree: #{e}\n  "+e.backtrace.join("\n  ")+"\nParse Tree:\n"+parse_tree_node.inspect
   end
 
   # if block is provided, successful parsers are yield to block
