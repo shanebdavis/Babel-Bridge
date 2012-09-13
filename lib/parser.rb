@@ -235,6 +235,13 @@ class Parser
     node_list && node_list[common_root.length..-1].map{|p|"#{p.class}(#{p.offset})"}.join(" > ")
   end
 
+  def nodes_interesting_parse_path(node)
+    path = node.parent_list
+    path << node
+    path.pop while path[-1] && !path[-1].kind_of?(NonTerminalNode)
+    path
+  end
+
   def parser_failure_info
     return unless src
     bracketing_lines=5
@@ -248,37 +255,37 @@ Source:
 ...
 ENDTXT
 
-      if @parsing_did_not_match_entire_input
-        ret+="\nParser did not match entire input."
-      else
+    if @parsing_did_not_match_entire_input
+      ret+="\nParser did not match entire input.\n"
+    end
 
-        common_root=nil
-        expecting_list.values.each do |e|
-          node=e[:node]
-          pl=node.parent_list
-          if common_root
-            common_root.each_index do |i|
-              if pl[i]!=common_root[i]
-                common_root=common_root[0..i-1]
-                break
-              end
-            end
-          else
-            common_root=node.parent_list
+    common_root=nil
+    expecting_list.values.each do |e|
+      node=e[:node]
+      pl=nodes_interesting_parse_path(node)
+      pl.pop # ignore the node itself
+      if common_root
+        common_root.each_index do |i|
+          if pl[i]!=common_root[i]
+            common_root=common_root[0..i-1]
+            break
           end
         end
-        ret+=<<ENDTXT
+      else
+        common_root=pl
+      end
+    end
+    ret+=<<ENDTXT
 
-Successfully matched rules up to failure:
+Parse path at failure:
   #{node_list_string(common_root)}
 
 Expecting#{expecting_list.length>1 ? ' one of' : ''}:
   #{expecting_list.values.collect do |a|
-    list=node_list_string(a[:node].parent_list,common_root)
+    list=node_list_string(nodes_interesting_parse_path(a[:node]),common_root)
     [list,"#{a[:pattern].inspect} (#{list})"]
   end.sort.map{|i|i[1]}.join("\n  ")}
 ENDTXT
-    end
     ret
   end
 end
