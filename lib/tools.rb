@@ -24,7 +24,7 @@ class Tools
       array = sort_operator_patterns array
       array = regexp_and_strings_to_regexpstrings array
 
-      array.collect {|op| "(#{op})"}.join('|').tap {|a| puts "array_to_or_regexp_string(#{array.inspect}) -> /#{a}/"}
+      array.collect {|op| "(#{op})"}.join('|') #.tap {|a| puts "array_to_or_regexp_string(#{array.inspect}) -> /#{a}/"}
     end
 
     def array_to_anchored_or_regexp(array)
