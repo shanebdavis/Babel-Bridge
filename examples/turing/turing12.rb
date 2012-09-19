@@ -1,14 +1,7 @@
 require File.join(File.dirname(__FILE__),"..","..","lib","babel_bridge")
-# A turing complete programming language
-# Example program that computes the power of two of the value stored in the [0] register:
-# => [0]=32;[1]=1;while [0]>0 do [1] = [1] * 2; [0] = [0]-1; end;[1]
-
-# TODO: add variables and functions
 
 class TuringParser < BabelBridge::Parser
   ignore_whitespace
-  # TODO: add "whole_words" option to convert all literal matching patterns that are words into /word\b/
-
 
   def store
     @store||=[]
