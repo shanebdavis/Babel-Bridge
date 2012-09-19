@@ -2,6 +2,10 @@ module BabelBridge
 class Tools
   class << self
 
+    def indent(string,indent="  ")
+      indent + string.gsub("\n", "\n#{indent}")
+    end
+
     def symbols_to_strings(array)
       array.collect {|op| op.kind_of?(Symbol) ? op.to_s : op}
     end
