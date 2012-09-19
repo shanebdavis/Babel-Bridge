@@ -4,7 +4,7 @@ class TuringParser < BabelBridge::Parser
 
   rule :add, :int, /[-+\/*]/, :add do
     def evaluate
-      int.evaluate.send matchs[1].to_s.to_sym, add.evaluate
+      int.evaluate.send matches[1].to_s.to_sym, add.evaluate
     end
   end
   rule :add, :int

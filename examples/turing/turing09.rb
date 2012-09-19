@@ -5,8 +5,8 @@ class TuringParser < BabelBridge::Parser
 
   rule :statement, "if", :statement, "then", :statement, :else_clause?, "end" do
     def evaluate
-      if statement[0].evaluate
-        statement[1].evaluate
+      if matches[1].evaluate
+        matches[3].evaluate
       else 
         else_clause.evaluate if else_clause
       end
