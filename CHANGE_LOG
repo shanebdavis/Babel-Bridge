@@ -1,3 +1,7 @@
+2012-08-19 version 0.3.1
+
+    Added refinements to the parser-failure output.
+
 2012-08-13
 
     Reversed the precedence order for binary_operators_rule. The first element has the highest precedence, i.e., it is computed first.
