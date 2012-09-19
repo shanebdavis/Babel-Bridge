@@ -160,6 +160,7 @@ class Parser
   attr_accessor :expecting_list
   attr_accessor :src
   attr_accessor :parse_cache
+  attr_accessor :failed_parse # gets set if the entire input was not matched
 
   def initialize
     reset_parser_tracking
@@ -209,6 +210,7 @@ class Parser
         if ret.next<src.length # parse only succeeds if the whole input is matched
           @parsing_did_not_match_entire_input=true
           @failure_index=ret.next
+          @failed_parse = ret
           ret=nil
         else
           reset_parser_tracking
@@ -242,23 +244,9 @@ class Parser
     path
   end
 
-  def parser_failure_info
-    return unless src
-    bracketing_lines=5
-    line,col=src.line_col(failure_index)
-    ret=<<-ENDTXT
-Parsing error at line #{line} column #{col} offset #{failure_index}
 
-Source:
-...
-#{(failure_index==0 ? "" : src[0..(failure_index-1)]).last_lines(bracketing_lines)}<HERE>#{src[(failure_index)..-1].first_lines(bracketing_lines)}
-...
-ENDTXT
-
-    if @parsing_did_not_match_entire_input
-      ret+="\nParser did not match entire input.\n"
-    end
-
+  def expecting_output
+    return "" if expecting_list.length==0
     common_root=nil
     expecting_list.values.each do |e|
       node=e[:node]
@@ -275,7 +263,7 @@ ENDTXT
         common_root=pl
       end
     end
-    ret+=<<ENDTXT
+    <<ENDTXT
 
 Parse path at failure:
   #{node_list_string(common_root)}
@@ -286,7 +274,31 @@ Expecting#{expecting_list.length>1 ? ' one of' : ''}:
     [list,"#{a[:pattern].inspect} (#{list})"]
   end.sort.map{|i|i[1]}.join("\n  ")}
 ENDTXT
-    ret
+  end
+
+  #option: :verbose => true
+  def parser_failure_info(options={})    
+    return unless src
+    verbose = options[:verbose]
+    bracketing_lines=5
+    line,col=src.line_col(failure_index)
+    ret=<<-ENDTXT
+Parsing error at line #{line} column #{col} offset #{failure_index}
+
+Source:
+...
+#{(failure_index==0 ? "" : src[0..(failure_index-1)]).last_lines(bracketing_lines)}<HERE>#{src[(failure_index)..-1].first_lines(bracketing_lines)}
+...
+ENDTXT
+
+    if @parsing_did_not_match_entire_input
+      ret+="\nParser did not match entire input.\n"
+      if verbose
+        ret+="\nParsed:\n#{Tools::indent failed_parse.inspect}\n"
+      end      
+    end
+  
+    ret+expecting_output
   end
 end
 end
