@@ -35,7 +35,7 @@ class Shell
           @stdout.puts evaluate(ret)
         end
       else
-        @stderr.puts parser.parser_failure_info
+        @stderr.puts parser.parser_failure_info :verbose => true
       end
     end
   end
