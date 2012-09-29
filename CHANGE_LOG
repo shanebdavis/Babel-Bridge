@@ -1,8 +1,12 @@
-2012-08-19 version 0.3.1
+2012-09-28
+
+    Added to_sym on nodes.
+    
+2012-09-19 version 0.3.1
 
     Added refinements to the parser-failure output.
 
-2012-08-13
+2012-09-13
 
     Reversed the precedence order for binary_operators_rule. The first element has the highest precedence, i.e., it is computed first.
 
@@ -10,7 +14,7 @@
     
         [["*", "/"], ["+", "-"]]
 
-2012-08-12
+2012-09-12
 
     using readline for shell
 
@@ -55,7 +59,7 @@
 
         The exact matched string, including trailing whitespace, is still available via the "text" method. The "to_s" method, though, now returns the stripped token value (if ignore_whitespace is enabled).
 
-2012-08-09
+2012-09-09
 
     forward_to now scans all patern elements for the first one that responds to the method
     added shell

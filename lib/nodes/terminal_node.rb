@@ -13,8 +13,7 @@ class TerminalNode < Node
     node_init(parent)
     self.match_length=match_length
     self.pattern=pattern
-    @ignore_whitespace = parser.ignore_whitespace?
-    consume_trailing_whitespace if @ignore_whitespace
+    consume_trailing_whitespace if ignore_whitespace?
   end
 
   def consume_trailing_whitespace
@@ -23,10 +22,6 @@ class TerminalNode < Node
       range = $~.offset(0)
       self.match_length += range[1]-range[0]
     end
-  end
-
-  def to_s
-    @ignore_whitespace ? text.strip : text
   end
 
   def inspect(options={})

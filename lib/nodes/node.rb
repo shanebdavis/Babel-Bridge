@@ -9,8 +9,16 @@ end
 class Node
   attr_accessor :src,:offset,:match_length,:parent,:parser
 
+  def ignore_whitespace?
+    parser.ignore_whitespace?
+  end
+
   def to_s
-    text
+    parser.ignore_whitespace? ? text.strip : text
+  end
+
+  def to_sym
+    to_s.to_sym
   end
 
   def node_init(parent_or_parser)
