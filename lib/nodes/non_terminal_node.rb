@@ -87,7 +87,11 @@ class NonTerminalNode < Node
       if f=forward_to(method_name)
         return f.send(method_name,*args)
       end
-      raise "#{self.class}: missing method #{method_name.inspect} / doesn't match named pattern element: #{matches_by_name.keys.inspect}"
+      match_path = [self]
+      while match_path[-1].matches.length==1
+        match_path<<match_path[-1].matches[0]
+      end
+      raise "#{match_path.collect{|m|m.class}.join(' > ')}: no methods or named pattern elements match: #{method_name.inspect}"
     end
     case ret=matches_by_name[method_name]
     when EmptyNode then nil
