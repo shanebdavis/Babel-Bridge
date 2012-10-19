@@ -413,6 +413,14 @@ class BBTests < TestHelper
     assert_equal "(5**(6**7))", parser.parse("5**6**7").evaluate
   end
 
+  def test_dont_parser
+    parser = new_parser do
+      rule :option, dont.match(/msg.*/), /.*/
+    end
+    assert_nil parser.parse "msg test"
+    assert parser.parse "non test"
+  end
+
   def test_line_col
     assert_equal [1,1], "".line_col(0)
     assert_equal [1,1], " ".line_col(0)
