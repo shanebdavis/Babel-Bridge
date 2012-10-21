@@ -17,4 +17,7 @@ DESCRIPTION
   
   s.files = ["LICENSE", "README", "Rakefile", "babel_bridge.gemspec", "{test,lib,doc,examples}/**/*"].map{|p| Dir[p]}.flatten
   s.has_rdoc = false
+
+  gem.add_development_dependency 'rake'
+  gem.add_development_dependency 'rspec'
 end

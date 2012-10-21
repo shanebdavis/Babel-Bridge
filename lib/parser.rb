@@ -167,10 +167,11 @@ class Parser
   end
 
   def reset_parser_tracking
-    self.src=nil
-    self.failure_index=0
-    self.expecting_list={}
-    self.parse_cache={}
+    @parsing_did_not_match_entire_input = false
+    @src = nil
+    @failure_index = 0
+    @expecting_list = {}
+    @parse_cache = {}
   end
 
   def cached(rule_class,offset)
@@ -187,12 +188,10 @@ class Parser
 
   def log_parsing_failure(index,expecting)
     if index>failure_index
-      key=expecting[:pattern]
-      @expecting_list={key=>expecting}
+      @expecting_list = {expecting[:pattern] => expecting}
       @failure_index = index
     elsif index == failure_index
-      key=expecting[:pattern]
-      self.expecting_list[key]=expecting
+      @expecting_list[expecting[:pattern]] = expecting
     else
       # ignored
     end
@@ -208,9 +207,11 @@ class Parser
     unless rule
       if ret
         if ret.next<src.length # parse only succeeds if the whole input is matched
-          @parsing_did_not_match_entire_input=true
-          @failure_index=ret.next
-          @failed_parse = ret
+          if ret.next >= @failure_index
+            @parsing_did_not_match_entire_input=true
+            @failure_index = ret.next
+            @failed_parse = ret
+          end
           ret=nil
         else
           reset_parser_tracking
