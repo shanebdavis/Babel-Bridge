@@ -9,6 +9,10 @@ end
 class Node
   attr_accessor :src,:offset,:match_length,:parent,:parser
 
+  def whitespace_regexp
+    parser.whitespace_regexp
+  end
+
   def ignore_whitespace?
     parser.ignore_whitespace?
   end

@@ -18,7 +18,7 @@ class TerminalNode < Node
 
   def consume_trailing_whitespace
     offset = self.next
-    if src[offset..-1].index(/\A\s*/)==0
+    if src[offset..-1].index(whitespace_regexp)==0
       range = $~.offset(0)
       self.match_length += range[1]-range[0]
     end

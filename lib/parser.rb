@@ -32,7 +32,7 @@ class Parser
     #   MyParser.rule :name, to_match1, to_match2, etc...
     #
     # The first rule added is the root-rule for the parser.
-    # You can override by: 
+    # You can override by:
     #   class MyParser < BabelBridge::Parser
     #     root_rule = :new_root_rool
     #   end
@@ -52,7 +52,7 @@ class Parser
     #       typical example is the "**" exponentiation operator which should be evaluated right-to-left.
     def binary_operators_rule(name,elements_pattern,operators,options={},&block)
       right_operators = options[:right_operators]
-      rule(name,many(elements_pattern,Tools::array_to_or_regexp(operators))) do 
+      rule(name,many(elements_pattern,Tools::array_to_or_regexp(operators))) do
         self.class_eval &block if block
         class <<self
           attr_accessor :operators_from_rule, :right_operators
@@ -98,7 +98,21 @@ class Parser
       @root_rule=rule
     end
 
+    def ignore_all_whitespace_regexp
+      /\A\s*/
+    end
+
+    def whitespace_regexp
+      @whitespace_regexp ||= ignore_all_whitespace_regexp
+    end
+
+    def ignore_spaces_and_tabs
+      @ignore_whitespace = true
+      @whitespace_regexp = /\A[ \t]*/
+    end
+
     def ignore_whitespace
+      @whitespace_regexp = ignore_all_whitespace_regexp
       @ignore_whitespace = true
     end
 
@@ -109,6 +123,10 @@ class Parser
 
   def ignore_whitespace?
     self.class.ignore_whitespace?
+  end
+
+  def whitespace_regexp
+    self.class.whitespace_regexp
   end
 
   #*********************************************
@@ -278,7 +296,7 @@ ENDTXT
   end
 
   #option: :verbose => true
-  def parser_failure_info(options={})    
+  def parser_failure_info(options={})
     return unless src
     verbose = options[:verbose]
     bracketing_lines=5
@@ -296,9 +314,9 @@ ENDTXT
       ret+="\nParser did not match entire input.\n"
       if verbose
         ret+="\nParsed:\n#{Tools::indent failed_parse.inspect}\n"
-      end      
+      end
     end
-  
+
     ret+expecting_output
   end
 end
