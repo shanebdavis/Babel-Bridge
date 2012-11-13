@@ -56,16 +56,19 @@ describe BabelBridge do
       ignore_whitespace
 
       rule :pair, :statement, :end_statement, :statement
-      rule :end_statement, ";"
-      rule :end_statement, rewind_whitespace(/([\t ]*\n)+/)
+      rule :end_statement, rewind_whitespace(/([\t ]*[\n;])+/)
       rule :statement, "0"
     end
 
     test_parse "0;0"
     test_parse "0\n0"
     test_parse "0   ;   0"
+    test_parse "0   ; ;  0"
     test_parse "0   \n   0"
-    test_parse "0      0", :should_fail_at => 7
+    test_parse "0   \n \n  0"
+    test_parse "0   \n ;  \n  0"
+    test_parse "0  ;  \n  ;0"
+    test_parse "0      0", :should_fail_at => 1
   end
 
   it "custom ignore_whitespace should work" do

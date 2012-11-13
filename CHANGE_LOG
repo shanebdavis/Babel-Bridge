@@ -1,7 +1,26 @@
+2012-11-13
+
+    ignore_whitespace now optionally takes a regexp for what to ignore after every TerminalNode. Default: /\s*/
+
+    rewind_whitespace matching pattern added. This allows you to match the string ignored by "ignore_whitespace" after the previous token.
+
+    Example: Implements the Ruby ";" / new-line parsing rule.
+
+      class MyParser < BabelBridge::Parser
+        ignore_whitespace
+
+        rule :pair, :statement, :end_statement, :statement
+        rule :end_statement, rewind_whitespace(/([\t ]*[\n;])+/)
+        rule :statement, "0"
+      end
+
+      # matches two 0s separated by one or more ";" or "\n" and any whitespace
+
+
 2012-09-28
 
     Added to_sym on nodes.
-    
+
 2012-09-19 version 0.3.1
 
     Added refinements to the parser-failure output.
@@ -11,7 +30,7 @@
     Reversed the precedence order for binary_operators_rule. The first element has the highest precedence, i.e., it is computed first.
 
     Now, the correct precedence order for the basic operators is:
-    
+
         [["*", "/"], ["+", "-"]]
 
 2012-09-12
@@ -30,7 +49,7 @@
 
             You can also group operators into the same precedence level: [["+", "-"], ["*", "/"]]
 
-            Operators in the same precedence level are matched left-to-right. 
+            Operators in the same precedence level are matched left-to-right.
 
             You optionally can list one or more "right_operators" - which can be strings or regexps - to specify which operators are right-associative.
 
