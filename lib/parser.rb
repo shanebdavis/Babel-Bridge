@@ -8,7 +8,7 @@ class Parser
   # These methods are used in the creation of a Parser Sub-Class to define
   # its grammar
   class <<self
-    attr_accessor :rules,:module_name,:root_rule
+    attr_accessor :rules, :module_name, :root_rule, :whitespace_regexp
 
     def rules
       @rules||={}
@@ -98,21 +98,8 @@ class Parser
       @root_rule=rule
     end
 
-    def ignore_all_whitespace_regexp
-      /\A\s*/
-    end
-
-    def whitespace_regexp
-      @whitespace_regexp ||= ignore_all_whitespace_regexp
-    end
-
-    def ignore_spaces_and_tabs
-      @ignore_whitespace = true
-      @whitespace_regexp = /\A[ \t]*/
-    end
-
-    def ignore_whitespace
-      @whitespace_regexp = ignore_all_whitespace_regexp
+    def ignore_whitespace(regexp = /\s*/)
+      @whitespace_regexp = regexp
       @ignore_whitespace = true
     end
 
@@ -161,6 +148,9 @@ class Parser
     def match?(*args) PatternElementHash.new.optionally.match(*args) end
     def match(*args) PatternElementHash.new.match(*args) end
     def match!(*args) PatternElementHash.new.dont.match(*args) end
+
+    # if ignore_whitespace is used, after every TerminalNode, all whitespace is consumed. Wrapping rewind_whitespace around a pattern-element allows you to not ignore the preceeding whitespace for that one element.
+    def rewind_whitespace(*args) PatternElementHash.new.rewind_whitespace.match(*args) end
 
     def dont; PatternElementHash.new.dont end
     def optionally; PatternElementHash.new.optionally end

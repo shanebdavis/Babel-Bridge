@@ -21,7 +21,7 @@ end
 #   :optional
 class PatternElement
   attr_accessor :parser,:optional,:negative,:name,:terminal,:could_match
-  attr_accessor :match,:rule_variant
+  attr_accessor :match,:rule_variant,:rewind_whitespace
 
   #match can be:
   # true, Hash, Symbol, String, Regexp
@@ -56,7 +56,7 @@ class PatternElement
 
     if !match && terminal
       # log failures on Terminal patterns for debug output if overall parse fails
-      parent_node.parser.log_parsing_failure(parent_node.next,:pattern=>self.match,:node=>parent_node)
+      parent_node.parser.log_parsing_failure(match_start_index(parent_node),:pattern=>self.match,:node=>parent_node)
     end
 
     # return match
@@ -83,24 +83,29 @@ class PatternElement
     self.parser=lambda {|parent_node| EmptyNode.new(parent_node)}
   end
 
+  def match_start_index(parent_node)
+    if rewind_whitespace
+      parent_node.next_starting_with_whitespace
+    else
+      parent_node.next
+    end
+  end
+
+
   # initialize PatternElement as a parser that matches exactly the string specified
   def init_string(string)
-    self.parser=lambda do |parent_node|
-      if parent_node.src[parent_node.next,string.length]==string
-        TerminalNode.new(parent_node,string.length,string)
-      end
-    end
-    self.terminal=true
+    init_regex Regexp.escape(string)
   end
 
   # initialize PatternElement as a parser that matches the given regex
   def init_regex(regex)
     optimized_regex=/\A#{regex}/  # anchor the search
     self.parser=lambda do |parent_node|
-      offset=parent_node.next
+      offset=match_start_index(parent_node)
       if parent_node.src[offset..-1].index(optimized_regex)==0
         range=$~.offset(0)
-        TerminalNode.new(parent_node,range[1]-range[0],regex)
+        range = (range.min+offset)..(range.max+offset)
+        TerminalNode.new(parent_node,range,regex)
       end
     end
     self.terminal=true
@@ -138,6 +143,7 @@ class PatternElement
     self.optional ||= hash[:optional] || hash[:optionally]
     self.could_match ||= hash[:could]
     self.negative ||= hash[:dont]
+    self.rewind_whitespace ||= hash[:rewind_whitespace]
   end
 
   # initialize the PatternElement as a many-parser from hashed parameters (hash[:many] is assumed to be set)
@@ -148,7 +154,7 @@ class PatternElement
 
     # generate delimiter_pattern_element
     delimiter_pattern_element= hash[:delimiter] && PatternElement.new(hash[:delimiter],rule_variant)
-    
+
     # generate post_delimiter_element
     post_delimiter_element=hash[:post_delimiter] && case hash[:post_delimiter]
     when TrueClass then delimiter_pattern_element

@@ -22,6 +22,16 @@ class NonTerminalNode < Node
     matches.length
   end
 
+  def next_starting_with_whitespace
+    if matches[-1]
+      matches[-1].next_starting_with_whitespace
+    elsif parent
+      parent.next_starting_with_whitespace
+    else
+      self.next
+    end
+  end
+
   def matches_by_name
     @matches_by_name||= begin
       raise "matches.length #{matches.length} != match_names.length #{match_names.length}" unless matches.length==match_names.length

@@ -1,3 +1,14 @@
+2012-11-13
+----------
+
+Instead of "rewind_whitespace", I'd like to have a more general ability to rewind an arbitrary regexp or string match.
+
+Would like to convert all Node member variables "offset" and "length" to "range" -- use Ruby ranges.
+
+"ignore_whitespace" should be refactored to be "token_delimiter". This should take any BB pattern, not just a regexp. Otherwise it works basically the same. It just gives you full control over what you match and ignore between tokens. We should also have the "to_s" on nodes NOT return the trailing token_delimiter string, though it should probably return any token_delimiters in between.
+
+Left-Recursion idea: An alternative behavior for left-recursion could be "greedy". The first time it happens, we proceed to any alternate rules. If there are none, then we fail. If we succeed, then attempt to match with just one recursive loop. If that succeeds, we advance to two recursive loops. This is kind-of like tail recursion optimization execept it is more like head-recursion in this sense :).
+
 2011-08-13
 ----------
 

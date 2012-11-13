@@ -292,7 +292,8 @@ class BBTests < TestHelper
         if src[offset..-1].index(/\A[A-Z]+/)==0
           endpattern=$~.to_s
           if i=src.index(endpattern,offset+endpattern.length)
-            BabelBridge::TerminalNode.new(parent_node,i+endpattern.length-offset,"endpattern")
+            range = offset..(i+endpattern.length)
+            BabelBridge::TerminalNode.new(parent_node,range,"endpattern")
           end
         end
       end}
@@ -395,11 +396,11 @@ class BBTests < TestHelper
   def test_binary_operator_rule
     parser=new_parser do
       binary_operators_rule :bin_op, :int, ["**", [:/, :*], [:+, "-"]], :right_operators => ["**"] do
-        def evaluate  
+        def evaluate
           "(#{left.evaluate}#{operator}#{right.evaluate})"
         end
       end
-     
+
       rule :int, /[-]?[0-9]+/ do
         def evaluate; to_s; end
       end

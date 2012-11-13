@@ -16,7 +16,10 @@ describe BabelBridge do
   def test_parse(string,options={})
     parser = options[:parser] || @parser
     res = parser.parse(string)
-    unless options[:failure_ok]
+    if options[:should_fail_at]
+      res.should == nil
+      parser.failure_index.should == options[:should_fail_at]
+    elsif !options[:failure_ok]
       puts parser.parser_failure_info :verbose => true unless res
       res.should_not == nil
     end
@@ -27,13 +30,12 @@ describe BabelBridge do
     new_parser do
       ignore_whitespace
 
-      rule :statement, "while", :statement, "end"      
+      rule :statement, "while", :statement, "end"
       rule :statement, "0"
       rule :statement, /[_a-zA-Z][_a-zA-Z0-9]*/
     end
 
-    res = test_parse "while 0 foo", :failure_ok => true
-    parser.failure_index.should == 8
+    res = test_parse "while 0 foo", :should_fail_at => 8
   end
 
   it "parsing twice when the first didn't match all input should but the second just failed shouldn't report 'did not match entire input'" do
@@ -48,4 +50,37 @@ describe BabelBridge do
     test_parse "bar", :failure_ok => true
     parser.parser_failure_info[partial_match_string].should == nil
   end
+
+  it "rewind_whitespace should work" do
+    new_parser do
+      ignore_whitespace
+
+      rule :pair, :statement, :end_statement, :statement
+      rule :end_statement, ";"
+      rule :end_statement, rewind_whitespace(/([\t ]*\n)+/)
+      rule :statement, "0"
+    end
+
+    test_parse "0;0"
+    test_parse "0\n0"
+    test_parse "0   ;   0"
+    test_parse "0   \n   0"
+    test_parse "0      0", :should_fail_at => 7
+  end
+
+  it "custom ignore_whitespace should work" do
+    new_parser do
+      ignore_whitespace /[_\s]*/
+
+      rule :foobar, "foo", "bar"
+    end
+
+    test_parse "foobar"
+    test_parse "foo_bar"
+    test_parse "foo_ bar"
+    test_parse "foo _ bar"
+    test_parse "foo bar"
+    test_parse "foo-bar", :should_fail_at => 3
+  end
+
 end
