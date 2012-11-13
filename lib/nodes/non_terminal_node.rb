@@ -23,9 +23,10 @@ class NonTerminalNode < Node
   end
 
   def next_starting_with_whitespace
-    if matches[-1]
-      matches[-1].next_starting_with_whitespace
-    elsif parent
+    matches.reverse_each do |node|
+      return node.next_starting_with_whitespace if node.length>0
+    end
+    if parent
       parent.next_starting_with_whitespace
     else
       self.next

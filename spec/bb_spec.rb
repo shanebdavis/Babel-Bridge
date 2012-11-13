@@ -71,6 +71,22 @@ describe BabelBridge do
     test_parse "0      0", :should_fail_at => 1
   end
 
+  it "rewind_whitespace should work even with EmptyNodes" do
+    new_parser do
+      ignore_whitespace
+
+      rule :pair, :statement, :end_statement, :statement
+      rule :end_statement, rewind_whitespace(/([\t ]*[\n;])+/)
+      rule :statement, "0", :one?
+      rule :one, "1"
+    end
+
+    test_parse "0;0"
+    test_parse "01;0"
+    test_parse "0\n0"
+    test_parse "01\n0"
+  end
+
   it "custom ignore_whitespace should work" do
     new_parser do
       ignore_whitespace /[_\s]*/
