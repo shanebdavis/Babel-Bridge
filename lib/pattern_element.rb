@@ -156,7 +156,7 @@ class PatternElement
     delimiter_pattern_element = hash[:delimiter] && PatternElement.new(hash[:delimiter],rule_variant)
 
     # generate many-parser
-    self.parser= lambda do |parent_node|
+    self.parser = lambda do |parent_node|
       many_node = ManyNode.new parent_node
 
       if delimiter_pattern_element
