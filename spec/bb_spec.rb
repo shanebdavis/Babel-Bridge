@@ -129,4 +129,36 @@ describe BabelBridge do
     test_parse "foo-bar", :should_fail_at => 3
   end
 
+  it "should work to have many many parsing" do
+    new_parser do
+      rule :top, many(:bottom,";")
+      rule :bottom, many("0",",")
+    end
+
+    test_parse "0"
+    test_parse "0;0"
+    test_parse "0,0"
+    test_parse "0,0;0"
+    test_parse "0;0,0"
+    test_parse "0,0,0;0;0,0,0"
+  end
+
+  it "should work to have many many parsing with whitespace tricks" do
+    new_parser do
+      ignore_whitespace
+      rule :statements, many(:statement,:end_statement)
+      rule :end_statement, include_whitespace(/([\t ]*[;\n])+/)
+      rule :statement, :bin_op
+      binary_operators_rule :bin_op, :int, ["**", [:/, :*], [:+, "-"]], :right_operators => ["**"]
+      rule :int, /\d+/
+    end
+
+    test_parse "0"
+    test_parse <<ENDCODE
+      3+4
+      9-2
+      4
+ENDCODE
+  end
+
 end
