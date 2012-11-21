@@ -7,7 +7,7 @@ http://babel-bridge.rubyforge.org/
 module BabelBridge
 # non-terminal node
 # subclassed automatically by parser.rule for each unique non-terminal
-class NonTerminalNode < Node
+class RuleNode < Node
   attr_accessor :matches,:match_names
 
   def match_names

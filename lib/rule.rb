@@ -4,10 +4,10 @@ class Rule
   attr_accessor :name, :variants, :parser, :node_class
 
   private
-  # creates a subclass of the NonTerminalNode for this Rule's node_class
+  # creates a subclass of the RuleNode for this Rule's node_class
   def create_node_class
     class_name = "#{parser.module_name}_#{name}_node".camelize
-    parser.const_set class_name, Class.new(NonTerminalNode)
+    parser.const_set class_name, Class.new(RuleNode)
   end
 
   # creates a new sub_class of the node_class for a variant

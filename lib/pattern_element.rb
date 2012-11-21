@@ -150,16 +150,10 @@ class PatternElement
   def init_many(hash)
     # generate single_parser
     init hash[:many]
-    single_parser=parser
+    single_parser = parser
 
     # generate delimiter_pattern_element
-    delimiter_pattern_element= hash[:delimiter] && PatternElement.new(hash[:delimiter],rule_variant)
-
-    # generate post_delimiter_element
-    post_delimiter_element=hash[:post_delimiter] && case hash[:post_delimiter]
-    when TrueClass then delimiter_pattern_element
-    else PatternElement.new(hash[:post_delimiter],rule_variant)
-    end
+    delimiter_pattern_element = hash[:delimiter] && PatternElement.new(hash[:delimiter],rule_variant)
 
     # generate many-parser
     self.parser= lambda do |parent_node|
@@ -178,6 +172,9 @@ class PatternElement
 
           #match next
           last_match=single_parser.call(many_node)
+
+          #unmatch delimiter if we didn't match the next primary pattern
+          many_node.delimiter_matches.pop unless last_match
         end
       else
         # not delimited matching
@@ -188,21 +185,7 @@ class PatternElement
       end
 
       # success only if we have at least one match
-      return nil unless many_node.length>0
-
-      # pop the post delimiter matched with delimiter_pattern_element
-      many_node.delimiter_matches.pop if many_node.length==many_node.delimiter_matches.length
-
-      # If post_delimiter is requested, many_node and delimiter_matches will be the same length
-      if post_delimiter_element
-        post_delimiter_match=post_delimiter_element.parse(many_node)
-
-        # fail if post_delimiter didn't match
-        return nil unless post_delimiter_match
-        many_node.delimiter_matches<<post_delimiter_match
-      end
-
-      many_node
+      many_node.length>0 ? many_node : nil
     end
   end
 end

@@ -37,7 +37,7 @@ class Parser
     #     root_rule = :new_root_rool
     #   end
     #
-    # The block is executed in the context of the rule-varient's node type, a subclass of: NonTerminalNode
+    # The block is executed in the context of the rule-varient's node type, a subclass of: RuleNode
     # This allows you to add whatever functionality you want to a your nodes in the final parse tree.
     # Also note you can override the post_match method. This allows you to restructure the parse tree as it is parsed.
     def rule(name,*pattern,&block)
@@ -132,9 +132,9 @@ class Parser
   #
   #*********************************************
   class <<self
-    def many(m,delimiter=nil,post_delimiter=nil) PatternElementHash.new.match.many(m).delimiter(delimiter).post_delimiter(post_delimiter) end
-    def many?(m,delimiter=nil,post_delimiter=nil) PatternElementHash.new.optionally.match.many(m).delimiter(delimiter).post_delimiter(post_delimiter) end
-    def many!(m,delimiter=nil,post_delimiter=nil) PatternElementHash.new.dont.match.many(m).delimiter(delimiter).post_delimiter(post_delimiter) end
+    def many(m,delimiter=nil) PatternElementHash.new.match.many(m).delimiter(delimiter) end
+    def many?(m,delimiter=nil) PatternElementHash.new.optionally.match.many(m).delimiter(delimiter) end
+    def many!(m,delimiter=nil) PatternElementHash.new.dont.match.many(m).delimiter(delimiter) end
 
     def match?(*args) PatternElementHash.new.optionally.match(*args) end
     def match(*args) PatternElementHash.new.match(*args) end
@@ -254,7 +254,7 @@ class Parser
   def nodes_interesting_parse_path(node)
     path = node.parent_list
     path << node
-    path.pop while path[-1] && !path[-1].kind_of?(NonTerminalNode)
+    path.pop while path[-1] && !path[-1].kind_of?(RuleNode)
     path
   end
 
