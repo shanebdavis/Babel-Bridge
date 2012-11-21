@@ -88,34 +88,6 @@ class Node
   def node_path
     "#{parent && (parent.node_path+' > ')}#{self.class}(#{offset})"
   end
-
-  #*****************************
-  # Array interface implementation
-  #*****************************
-  def matches # override this with function that returns array of matches to be used for Array indexing and iteration
-    []
-  end
-
-  include Enumerable
-  def length
-    matches.length
-  end
-
-  def <<(node)
-    matches<<node
-  end
-
-  def add_delimiter(node)
-    delimiter_matches<<node
-  end
-
-  def [](i)
-    matches[i]
-  end
-
-  def each(&block)
-    matches.each(&block)
-  end
 end
 
 class RootNode < Node

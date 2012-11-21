@@ -5,29 +5,12 @@ http://babel-bridge.rubyforge.org/
 =end
 
 module BabelBridge
-# non-terminal node
+# rule node
 # subclassed automatically by parser.rule for each unique non-terminal
-class RuleNode < Node
-  attr_accessor :matches,:match_names
+class RuleNode < NonTerminalNode
 
   def match_names
     @match_names ||= []
-  end
-  def matches
-    @matches ||= []
-  end
-
-  # length returns the number of sub-nodes
-  def length
-    matches.length
-  end
-
-  def trailing_whitespace_range
-    if matches.length == 0
-      preceding_whitespace_range || (0..-1)
-    else
-      matches[-1].trailing_whitespace_range
-    end
   end
 
   def matches_by_name
@@ -108,22 +91,12 @@ class RuleNode < Node
   end
 
   # adds a match with name (optional)
-  # returns self so you can chain add_match or concat methods
   def add_match(match,name=nil)
     reset_matches_by_name
     matches<<match
     match_names<<name
 
-    self.match_length = match.offset_after_match - offset
-    self
-  end
-
-  # concatinate all matches from another node
-  # returns self so you can chain add_match or concat methods
-  def concat(node)
-    names=node.match_names
-    node.matches.each_with_index { |match,i| add_match(match,names[i])}
-    self
+    update_match_length
   end
 end
 end

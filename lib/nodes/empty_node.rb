@@ -21,5 +21,7 @@ class EmptyNode < Node
     self.preceding_whitespace_range = match_range
   end
 
+  def matches; [self]; end
+
 end
 end

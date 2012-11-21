@@ -9,6 +9,19 @@ module BabelBridge
 # subclassed automatically by parser.rule for each unique non-terminal
 class NonTerminalNode < Node
 
+  def trailing_whitespace_range
+    if matches.length == 0
+      preceding_whitespace_range || (0..-1)
+    else
+      matches[-1].trailing_whitespace_range
+    end
+  end
+
+  def update_match_length
+    m = matches[-1]
+    @match_length = m ? m.offset_after_match - offset : 0
+  end
+
   #*****************************
   # Array interface implementation
   #*****************************
@@ -23,6 +36,7 @@ class NonTerminalNode < Node
 
   def <<(node)
     matches<<node
+    update_match_length
   end
 
   def [](i)

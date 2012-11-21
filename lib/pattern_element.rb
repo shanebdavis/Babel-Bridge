@@ -163,19 +163,17 @@ class PatternElement
       if delimiter_pattern_element
         # delimited matching
         while last_match
-          many_node<<last_match
+          many_node << last_match
 
           #match delimiter
           delimiter_match = delimiter_pattern_element.parse(many_node)
           break unless delimiter_match
-          many_node.delimiter_matches<<delimiter_match
+          many_node << delimiter_match
 
           #match next
-          last_match=single_parser.call(many_node)
-
-          #unmatch delimiter if we didn't match the next primary pattern
-          many_node.delimiter_matches.pop unless last_match
+          last_match = single_parser.call(many_node)
         end
+        many_node.separate_delimiter_matches
       else
         # not delimited matching
         while last_match
