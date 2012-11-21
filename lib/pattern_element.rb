@@ -157,33 +157,33 @@ class PatternElement
 
     # generate many-parser
     self.parser= lambda do |parent_node|
-      last_match=single_parser.call(parent_node)
-      many_node=ManyNode.new(parent_node)
+      many_node = ManyNode.new parent_node
 
       if delimiter_pattern_element
         # delimited matching
-        while last_match
-          many_node << last_match
+        while true
+          #match primary
+          match = single_parser.call many_node
+          break unless match
+          many_node << match
 
           #match delimiter
-          delimiter_match = delimiter_pattern_element.parse(many_node)
+          delimiter_match = delimiter_pattern_element.parse many_node
           break unless delimiter_match
           many_node << delimiter_match
-
-          #match next
-          last_match = single_parser.call(many_node)
         end
         many_node.separate_delimiter_matches
       else
         # not delimited matching
-        while last_match
-          many_node<<last_match
-          last_match=single_parser.call(many_node)
+        while true
+          match = single_parser.call many_node
+          break unless match
+          many_node << match
         end
       end
 
       # success only if we have at least one match
-      many_node.length>0 ? many_node : nil
+      many_node.length>0 && many_node
     end
   end
 end
