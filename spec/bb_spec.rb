@@ -26,7 +26,20 @@ describe BabelBridge do
     res
   end
 
-  it "the failure_index should be the furthest point reached, even if we managed to match successfully less" do
+  it "ignore_whitespace should work" do
+    new_parser do
+      ignore_whitespace
+      rule :foobar, "foo", "bar"
+    end
+
+    test_parse "foobar"
+    test_parse "foo bar"
+    test_parse "foo  \t \r \f \n    bar"
+    test_parse " foobar"
+    test_parse "foobar "
+  end
+
+  it "the failure_index should be the furthest point reached, even if we managed to successfully match less" do
     new_parser do
       ignore_whitespace
 
@@ -38,7 +51,7 @@ describe BabelBridge do
     res = test_parse "while 0 foo", :should_fail_at => 8
   end
 
-  it "parsing twice when the first didn't match all input should but the second just failed shouldn't report 'did not match entire input'" do
+  it "parsing twice when the first didn't match all input should, but the second just failed, shouldn't report 'did not match entire input'" do
     new_parser do
       rule :foo, "foo"
     end
@@ -77,7 +90,7 @@ describe BabelBridge do
 
       rule :pair, :statement, :end_statement, :statement
       rule :end_statement, rewind_whitespace(/([\t ]*[\n;])+/)
-      rule :statement, "0", :one?
+      rule :statement, "0", :one?, :one?, :one?
       rule :one, "1"
     end
 
@@ -85,6 +98,8 @@ describe BabelBridge do
     test_parse "01;0"
     test_parse "0\n0"
     test_parse "01\n0"
+    test_parse "011\n0"
+    test_parse "0111\n0"
   end
 
   it "custom ignore_whitespace should work" do
