@@ -21,7 +21,7 @@ end
 #   :optional
 class PatternElement
   attr_accessor :parser,:optional,:negative,:name,:terminal,:could_match
-  attr_accessor :match,:rule_variant,:rewind_whitespace
+  attr_accessor :match,:rule_variant,:include_whitespace
 
   #match can be:
   # true, Hash, Symbol, String, Regexp
@@ -84,7 +84,7 @@ class PatternElement
   end
 
   def match_start_index(parent_node)
-    if rewind_whitespace
+    if include_whitespace
       parent_node.trailing_whitespace_range.first
     else
       parent_node.next
@@ -143,7 +143,7 @@ class PatternElement
     self.optional ||= hash[:optional] || hash[:optionally]
     self.could_match ||= hash[:could]
     self.negative ||= hash[:dont]
-    self.rewind_whitespace ||= hash[:rewind_whitespace]
+    self.include_whitespace ||= hash[:include_whitespace]
   end
 
   # initialize the PatternElement as a many-parser from hashed parameters (hash[:many] is assumed to be set)

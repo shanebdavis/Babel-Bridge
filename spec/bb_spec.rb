@@ -64,12 +64,12 @@ describe BabelBridge do
     parser.parser_failure_info[partial_match_string].should == nil
   end
 
-  it "rewind_whitespace should work" do
+  it "include_whitespace should work" do
     new_parser do
       ignore_whitespace
 
       rule :pair, :statement, :end_statement, :statement
-      rule :end_statement, rewind_whitespace(/([\t ]*[\n;])+/)
+      rule :end_statement, include_whitespace(/([\t ]*[\n;])+/)
       rule :statement, "0"
     end
 
@@ -84,12 +84,12 @@ describe BabelBridge do
     test_parse "0      0", :should_fail_at => 1
   end
 
-  it "rewind_whitespace should work even with EmptyNodes" do
+  it "include_whitespace should work even with EmptyNodes" do
     new_parser do
       ignore_whitespace
 
       rule :pair, :statement, :end_statement, :statement
-      rule :end_statement, rewind_whitespace(/([\t ]*[\n;])+/)
+      rule :end_statement, include_whitespace(/([\t ]*[\n;])+/)
       rule :statement, "0", :one?, :one?, :one?
       rule :one, "1"
     end
