@@ -102,6 +102,18 @@ describe BabelBridge do
     test_parse "0111\n0"
   end
 
+  it "include_whitespace should work with many" do
+    new_parser do
+      ignore_whitespace
+      rule :statements, many(:statement,:end_statement)
+      rule :end_statement, include_whitespace(/([\t ]*[;\n])+/)
+      rule :statement, "0"
+    end
+
+    test_parse "0"
+    test_parse "0\n0"
+  end
+
   it "custom ignore_whitespace should work" do
     new_parser do
       ignore_whitespace /[_\s]*/
