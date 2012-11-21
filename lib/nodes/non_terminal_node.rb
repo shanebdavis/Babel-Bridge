@@ -22,14 +22,11 @@ class NonTerminalNode < Node
     matches.length
   end
 
-  def next_starting_with_whitespace
-    matches.reverse_each do |node|
-      return node.next_starting_with_whitespace if node.length>0
-    end
-    if parent
-      parent.next_starting_with_whitespace
+  def trailing_whitespace_range
+    if matches.length == 0
+      preceding_whitespace_range || (0..-1)
     else
-      self.next
+      matches[-1].trailing_whitespace_range
     end
   end
 
@@ -117,7 +114,7 @@ class NonTerminalNode < Node
     matches<<match
     match_names<<name
 
-    self.match_length=match.next - offset
+    self.match_length = match.offset_after_match - offset
     self
   end
 

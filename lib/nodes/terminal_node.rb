@@ -14,15 +14,6 @@ class TerminalNode < Node
     self.offset = range.min
     self.match_length = range.max-range.min
     self.pattern = pattern
-    consume_trailing_whitespace if ignore_whitespace?
-  end
-
-  def consume_trailing_whitespace
-    @trailing_whitespace_offset = self.next
-    if src[trailing_whitespace_offset..-1].index(whitespace_regexp)==0
-      range = $~.offset(0)
-      self.match_length += range[1]-range[0]
-    end
   end
 
   def inspect(options={})
@@ -31,8 +22,5 @@ class TerminalNode < Node
 
   def matches; [self]; end
 
-  def next_starting_with_whitespace
-    trailing_whitespace_offset
-  end
 end
 end

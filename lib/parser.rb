@@ -99,21 +99,12 @@ class Parser
     end
 
     def ignore_whitespace(regexp = /\s*/)
-      @whitespace_regexp = regexp
-      @ignore_whitespace = true
+      @whitespace_regexp = /\A(#{regexp})?/
     end
-
-    def ignore_whitespace?
-      @ignore_whitespace
-    end
-  end
-
-  def ignore_whitespace?
-    self.class.ignore_whitespace?
   end
 
   def whitespace_regexp
-    self.class.whitespace_regexp
+    self.class.whitespace_regexp || /\A/
   end
 
   #*********************************************
@@ -149,8 +140,9 @@ class Parser
     def match(*args) PatternElementHash.new.match(*args) end
     def match!(*args) PatternElementHash.new.dont.match(*args) end
 
-    # if ignore_whitespace is used, after every TerminalNode, all whitespace is consumed. Wrapping rewind_whitespace around a pattern-element allows you to not ignore the preceeding whitespace for that one element.
-    def rewind_whitespace(*args) PatternElementHash.new.rewind_whitespace.match(*args) end
+    # if ignore_whitespace is used, after every TerminalNode, all whitespace is consumed. Wrapping include_whitespace around a pattern-element allows you to explicitly match the preceeding whitespace for that one element.
+    # NOTE: you can ALWAYS explicitly match any trailing whitespace
+    def include_whitespace(*args) PatternElementHash.new.include_whitespace.match(*args) end
 
     def dont; PatternElementHash.new.dont end
     def optionally; PatternElementHash.new.optionally end
@@ -180,6 +172,19 @@ class Parser
     @failure_index = 0
     @expecting_list = {}
     @parse_cache = {}
+    @white_space_ranges = {}
+  end
+
+  # memoizing whitespace parser
+  def white_space_range(start)
+    @white_space_ranges[start]||=begin
+      # src should always be a string - unless this is called AFTER parsing is done. Currently this can happen with the way ManyNode handles .match_length and .next
+      # We should be able to just use:
+      #   src[start..-1].index whitespace_regexp
+      ((src||"")[start..-1]||"").index whitespace_regexp
+      r = $~.offset 0
+      start+r[0] .. start+r[1]-1
+    end
   end
 
   def cached(rule_class,offset)

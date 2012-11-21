@@ -85,7 +85,7 @@ class PatternElement
 
   def match_start_index(parent_node)
     if rewind_whitespace
-      parent_node.next_starting_with_whitespace
+      parent_node.trailing_whitespace_range.first
     else
       parent_node.next
     end
@@ -101,7 +101,7 @@ class PatternElement
   def init_regex(regex)
     optimized_regex=/\A#{regex}/  # anchor the search
     self.parser=lambda do |parent_node|
-      offset=match_start_index(parent_node)
+      offset = match_start_index(parent_node)
       if parent_node.src[offset..-1].index(optimized_regex)==0
         range=$~.offset(0)
         range = (range.min+offset)..(range.max+offset)

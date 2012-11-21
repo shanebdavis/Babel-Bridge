@@ -13,5 +13,13 @@ class EmptyNode < Node
   def inspect(options={})
     "EmptyNode" unless options[:simple]
   end
+
+  # EmptyNodes should always match at the beginning of the whitespace range
+  def node_init(parent_or_parser)
+    super
+    self.offset = preceding_whitespace_range.first
+    self.preceding_whitespace_range = match_range
+  end
+
 end
 end
