@@ -161,17 +161,11 @@ describe BabelBridge do
 ENDCODE
   end
 
-  it "should work to include_whitespace-many" do
+  it "should work to include_whitespace(:rule)" do
     new_parser do
       ignore_whitespace
       rule :all, :identifier, :parameters?, :identifier
-      rule :parameters, include_whitespace(/[ \t]*/), include_whitespace(:identifier) do # this doesn't
-#      rule :parameters, include_whitespace(/[ \t]*/), include_whitespace(/[_a-zA-Z][_a-zA-Z0-9]*/) do # this works
-        def matched
-          puts "matched: #{self.class} #{prewhitespace.inspect} #{text.inspect} #{postwhitespace.inspect}"
-        end
-      end
-
+      rule :parameters, include_whitespace(/[ \t]*/), include_whitespace(:identifier)
       rule :identifier, /[_a-zA-Z][_a-zA-Z0-9]*/
     end
 
@@ -180,4 +174,19 @@ fred
 bar
 ENDCODE
   end
+
+  it "should work to include_whitespace(many)" do
+    new_parser do
+      ignore_whitespace
+      rule :all, :identifier, :parameters?, :identifier
+      rule :parameters, include_whitespace(/[ \t]*/), include_whitespace(many(:identifier,","))
+      rule :identifier, /[_a-zA-Z][_a-zA-Z0-9]*/
+    end
+
+    test_parse <<ENDCODE
+fred foo, bar
+bar
+ENDCODE
+  end
+
 end
