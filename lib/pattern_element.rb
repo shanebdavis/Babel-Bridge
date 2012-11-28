@@ -42,25 +42,27 @@ class PatternElement
 
   # attempt to match the pattern defined in self.parser in parent_node.src starting at offset parent_node.next
   def parse(parent_node)
-    # run element parser
-    match=parser.call(parent_node)
+    attempt_match(parent_node) do
+      # run element parser
+      match=parser.call(parent_node)
 
-    # Negative patterns (PEG: !element)
-    match=match ? nil : EmptyNode.new(parent_node) if negative
+      # Negative patterns (PEG: !element)
+      match=match ? nil : EmptyNode.new(parent_node) if negative
 
-    # Optional patterns (PEG: element?)
-    match=EmptyNode.new(parent_node) if !match && optional
+      # Optional patterns (PEG: element?)
+      match=EmptyNode.new(parent_node) if !match && optional
 
-    # Could-match patterns (PEG: &element)
-    match.match_length=0 if match && could_match
+      # Could-match patterns (PEG: &element)
+      match.match_length=0 if match && could_match
 
-    if !match && terminal
-      # log failures on Terminal patterns for debug output if overall parse fails
-      parent_node.parser.log_parsing_failure(match_start_index(parent_node),:pattern=>self.match,:node=>parent_node)
+      if !match && terminal
+        # log failures on Terminal patterns for debug output if overall parse fails
+        parent_node.parser.log_parsing_failure(parent_node.next,:pattern=>self.match,:node=>parent_node)
+      end
+
+      # return match
+      match
     end
-
-    # return match
-    match
   end
 
   private
@@ -83,15 +85,18 @@ class PatternElement
     self.parser=lambda {|parent_node| EmptyNode.new(parent_node)}
   end
 
-  def match_start_index(parent_node)
+  def attempt_match(parent_node)
     if include_whitespace
-      #puts "match_start_index - include_whitespace"
-      parent_node.postwhitespace_range.first
+      begin
+        parent_node.no_postwhitespace = true
+        yield
+      ensure
+        parent_node.no_postwhitespace = false
+      end
     else
-      parent_node.next
-    end #.tap {|a|puts "match_start_index: #{a}"}
+      yield
+    end
   end
-
 
   # initialize PatternElement as a parser that matches exactly the string specified
   def init_string(string)
@@ -102,7 +107,7 @@ class PatternElement
   def init_regex(regex)
     optimized_regex=/\A#{regex}/  # anchor the search
     self.parser=lambda do |parent_node|
-      offset = match_start_index(parent_node)
+      offset = parent_node.next
       if parent_node.src[offset..-1].index(optimized_regex)==0
         range=$~.offset(0)
         range = (range.min+offset)..(range.max+offset)
@@ -115,16 +120,16 @@ class PatternElement
   # initialize PatternElement as a parser that matches a named sub-rule
   def init_rule(rule_name)
     rule_name.to_s[/^([^?!]*)([?!])?$/]
-    rule_name=$1.to_sym
-    option=$2
-    match_rule=rule_variant.rule.parser.rules[rule_name]
+    rule_name = $1.to_sym
+    option = $2
+    match_rule = rule_variant.rule.parser.rules[rule_name]
     raise "no rule for #{rule_name}" unless match_rule
 
     self.parser = lambda {|parent_node| match_rule.parse(parent_node)}
-    self.name   = rule_name
+    self.name = rule_name
     case option
-    when "?"  then self.optional=true
-    when "!"  then self.negative=true
+    when "?"  then self.optional = true
+    when "!"  then self.negative = true
     end
   end
 

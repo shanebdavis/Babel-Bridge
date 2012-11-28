@@ -9,6 +9,11 @@ end
 class Node
   attr_accessor :src,:offset,:match_length,:parent,:parser,:prewhitespace_range
 
+  # no_postwhitespace is used when parsing to temporarilly rollback the preceeding whitespace while
+  # attempting to match an ignore_whitespace pattern.
+  # It should always be false again once parsing completes or fails.
+  attr_accessor :no_postwhitespace
+
   def whitespace_regexp
     parser.whitespace_regexp
   end
@@ -22,8 +27,13 @@ class Node
     offset..(offset+match_length-1)
   end
 
-  def postwhitespace_range
+  def postwhitespace_range_without_no_postwhitespace
     parser.white_space_range offset_after_match
+  end
+
+  def postwhitespace_range
+    r = postwhitespace_range_without_no_postwhitespace
+    no_postwhitespace ? r.first..r.first-1 : r
   end
 
   def postwhitespace

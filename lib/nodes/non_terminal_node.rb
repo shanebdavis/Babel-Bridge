@@ -9,7 +9,7 @@ module BabelBridge
 # subclassed automatically by parser.rule for each unique non-terminal
 class NonTerminalNode < Node
 
-  def postwhitespace_range
+  def postwhitespace_range_without_no_postwhitespace
     if matches.length == 0
       prewhitespace_range || (0..-1)
     else
