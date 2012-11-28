@@ -85,10 +85,11 @@ class PatternElement
 
   def match_start_index(parent_node)
     if include_whitespace
-      parent_node.trailing_whitespace_range.first
+      #puts "match_start_index - include_whitespace"
+      parent_node.postwhitespace_range.first
     else
       parent_node.next
-    end
+    end #.tap {|a|puts "match_start_index: #{a}"}
   end
 
 

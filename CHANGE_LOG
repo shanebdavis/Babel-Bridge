@@ -1,3 +1,19 @@
+2012-11-20 v0.4.0
+
+    INCOMPATIBLE CHANGE: Removed the post-match pattern option from the "many" pattern matcher. It simplifies things and can easily be reproduced
+    with a custom rule.
+
+    Did significant code cleanup. NonTerminalNode was renamed RuleNode and a new NonTerminalNode class was created as a parent for RuleNode
+    and ManyNode.
+
+    Renamed rewind_whitespace to include_whitespace and improved its correctness. It seems to work in all cases now.
+
+    ignore_whitespace is now just a regexp. An Empty regexp is used if ignore_whitespace is not specified. It is now handled consistenly throughout.
+    Every node has postwhitespace_range and prewhitespace_range methods that allow you to find the whitespace after and before that node.
+
+    note.to_s and node.text now both just return the matched text WITHOUT the preceding and trailing whitespace. Note, however, that it will still
+    include any whitespace inbetween as it is just a single slice out of the source.
+
 2012-11-13
 
     ignore_whitespace now optionally takes a regexp for what to ignore after every TerminalNode. Default: /\s*/

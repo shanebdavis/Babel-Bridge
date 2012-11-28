@@ -26,6 +26,7 @@ class RuleVariant
 
       # if parse failed
       return if !match
+      match.matched
 
       # parse succeeded, add to node and continue
       node.add_match(match,pe.name)
@@ -34,6 +35,6 @@ class RuleVariant
   end
 
   def inspect; pattern.collect {|a| a.inspect}.join(', '); end
-  def to_s; "variant_class: #{variant_node_class}, pattern: #{inspect}"; end  
+  def to_s; "variant_class: #{variant_node_class}, pattern: #{inspect}"; end
 end
 end

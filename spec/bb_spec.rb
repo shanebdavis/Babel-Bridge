@@ -129,7 +129,7 @@ describe BabelBridge do
     test_parse "foo-bar", :should_fail_at => 3
   end
 
-  it "should work to have many many parsing" do
+  it "should work to have many-many parsing" do
     new_parser do
       rule :top, many(:bottom,";")
       rule :bottom, many("0",",")
@@ -143,7 +143,7 @@ describe BabelBridge do
     test_parse "0,0,0;0;0,0,0"
   end
 
-  it "should work to have many many parsing with whitespace tricks" do
+  it "should work to have many parsing with whitespace tricks" do
     new_parser do
       ignore_whitespace
       rule :statements, many(:statement,:end_statement)
@@ -161,4 +161,23 @@ describe BabelBridge do
 ENDCODE
   end
 
+  it "should work to include_whitespace-many" do
+    new_parser do
+      ignore_whitespace
+      rule :all, :identifier, :parameters?, :identifier
+      rule :parameters, include_whitespace(/[ \t]*/), include_whitespace(:identifier) do # this doesn't
+#      rule :parameters, include_whitespace(/[ \t]*/), include_whitespace(/[_a-zA-Z][_a-zA-Z0-9]*/) do # this works
+        def matched
+          puts "matched: #{self.class} #{prewhitespace.inspect} #{text.inspect} #{postwhitespace.inspect}"
+        end
+      end
+
+      rule :identifier, /[_a-zA-Z][_a-zA-Z0-9]*/
+    end
+
+    test_parse <<ENDCODE
+fred
+bar
+ENDCODE
+  end
 end

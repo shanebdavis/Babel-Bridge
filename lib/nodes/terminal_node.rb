@@ -8,7 +8,7 @@ module BabelBridge
 # used for String and Regexp PatternElements
 # not subclassed
 class TerminalNode < Node
-  attr_accessor :pattern, :trailing_whitespace_offset
+  attr_accessor :pattern, :postwhitespace_offset
   def initialize(parent,range,pattern)
     node_init(parent)
     self.offset = range.min

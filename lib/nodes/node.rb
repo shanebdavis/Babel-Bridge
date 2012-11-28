@@ -7,7 +7,7 @@ end
 
 # base class for all parse-tree nodes
 class Node
-  attr_accessor :src,:offset,:match_length,:parent,:parser,:preceding_whitespace_range
+  attr_accessor :src,:offset,:match_length,:parent,:parser,:prewhitespace_range
 
   def whitespace_regexp
     parser.whitespace_regexp
@@ -22,8 +22,20 @@ class Node
     offset..(offset+match_length-1)
   end
 
-  def trailing_whitespace_range
+  def postwhitespace_range
     parser.white_space_range offset_after_match
+  end
+
+  def postwhitespace
+    src[postwhitespace_range]
+  end
+
+  def prewhitespace
+    src[prewhitespace_range]
+  end
+
+  # called when a ruled is matched
+  def matched
   end
 
   def to_s
@@ -45,7 +57,7 @@ class Node
       self.parent=parent_or_parser
       self.parser=parent.parser
       self.offset=parent.next
-      self.preceding_whitespace_range=parent.trailing_whitespace_range
+      self.prewhitespace_range=parent.postwhitespace_range
       self.src=parent.src
       raise "parent node does not have parser set" unless parser
     else
@@ -73,7 +85,7 @@ class Node
   #********************
   # info methods
   #********************
-  def next; trailing_whitespace_range.last+1 end # index of first character after match and any trailing whitespace
+  def next; postwhitespace_range.last+1 end # index of first character after match and any trailing whitespace
   def text; src[match_range] end  # the substring in src matched
 
   # length returns the number of sub-nodes

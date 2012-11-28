@@ -9,11 +9,11 @@ module BabelBridge
 # subclassed automatically by parser.rule for each unique non-terminal
 class NonTerminalNode < Node
 
-  def trailing_whitespace_range
+  def postwhitespace_range
     if matches.length == 0
-      preceding_whitespace_range || (0..-1)
+      prewhitespace_range || (0..-1)
     else
-      matches[-1].trailing_whitespace_range
+      matches[-1].postwhitespace_range
     end
   end
 
