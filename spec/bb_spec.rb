@@ -195,4 +195,33 @@ ENDCODE
     test_parse("fred foo, bar\nbar")  {|parsed| parsed.to_model.should==[[:fred,"foo, bar"],:bar]}
   end
 
+  it "should work to include_whitespace(:rule)" do
+    new_parser do
+      ignore_whitespace
+      rule :statements, many(:identifier_get, :end_statement) do
+        def to_model
+          identifier_get.collect{|a|a.to_model}
+        end
+      end
+      rule :identifier_get, :identifier, :parameters? do
+        def to_model
+          [identifier.to_sym, parameters && parameters.to_model]
+        end
+      end
+      rule :end_statement, include_whitespace(/([\t ]*[;\n])+/)
+      rule :parameters, include_whitespace(/[ \t]*/), include_whitespace(many(:identifier,",")) do
+        def to_model
+          identifier.collect{|a|a.to_sym}
+        end
+      end
+      rule :identifier, /[_a-zA-Z][_a-zA-Z0-9]*/
+    end
+
+    test_parse("fred\nbar") {|parsed|parsed.to_model.should == [[:fred,nil],[:bar,nil]]}
+    test_parse("fred foo\nbar") {|parsed|parsed.to_model.should == [[:fred,[:foo]],[:bar,nil]]}
+    test_parse("fred foo,too\nbar") {|parsed|parsed.to_model.should == [[:fred,[:foo,:too]],[:bar,nil]]}
+    test_parse("fred foo, too\nbar") {|parsed|parsed.to_model.should == [[:fred,[:foo,:too]],[:bar,nil]]}
+  end
+
+
 end
