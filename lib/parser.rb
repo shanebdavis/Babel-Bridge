@@ -140,9 +140,7 @@ class Parser
     def match(*args) PatternElementHash.new.match(*args) end
     def match!(*args) PatternElementHash.new.dont.match(*args) end
 
-    # if ignore_whitespace is used, after every TerminalNode, all whitespace is consumed. Wrapping include_whitespace around a pattern-element allows you to explicitly match the preceeding whitespace for that one element.
-    # NOTE: you can ALWAYS explicitly match any trailing whitespace
-    def include_whitespace(*args) PatternElementHash.new.include_whitespace.match(*args) end
+    def rollback_whitespace; PatternElementHash.new.rollback_whitespace end
 
     def dont; PatternElementHash.new.dont end
     def optionally; PatternElementHash.new.optionally end

@@ -21,7 +21,7 @@ end
 #   :optional
 class PatternElement
   attr_accessor :parser,:optional,:negative,:name,:terminal,:could_match
-  attr_accessor :match,:rule_variant,:include_whitespace
+  attr_accessor :match,:rule_variant,:rollback_whitespace
 
   #match can be:
   # true, Hash, Symbol, String, Regexp
@@ -42,27 +42,27 @@ class PatternElement
 
   # attempt to match the pattern defined in self.parser in parent_node.src starting at offset parent_node.next
   def parse(parent_node)
-    attempt_match(parent_node) do
-      # run element parser
-      match = parser.call(parent_node)
+    return RollbackWhitespaceNode.new(parent_node) if rollback_whitespace
 
-      # Negative patterns (PEG: !element)
-      match = match ? nil : EmptyNode.new(parent_node) if negative
+    # run element parser
+    match = parser.call(parent_node)
 
-      # Optional patterns (PEG: element?)
-      match = EmptyNode.new(parent_node) if !match && optional
+    # Negative patterns (PEG: !element)
+    match = match ? nil : EmptyNode.new(parent_node) if negative
 
-      # Could-match patterns (PEG: &element)
-      match.match_length = 0 if match && could_match
+    # Optional patterns (PEG: element?)
+    match = EmptyNode.new(parent_node) if !match && optional
 
-      if !match && terminal
-        # log failures on Terminal patterns for debug output if overall parse fails
-        parent_node.parser.log_parsing_failure(parent_node.next,:pattern=>self.match,:node=>parent_node)
-      end
+    # Could-match patterns (PEG: &element)
+    match.match_length = 0 if match && could_match
 
-      # return match
-      match
+    if !match && terminal
+      # log failures on Terminal patterns for debug output if overall parse fails
+      parent_node.parser.log_parsing_failure(parent_node.next,:pattern=>self.match,:node=>parent_node)
     end
+
+    # return match
+    match
   end
 
   private
@@ -83,19 +83,6 @@ class PatternElement
   # "true" parser always matches the empty string
   def init_true
     self.parser=lambda {|parent_node| EmptyNode.new(parent_node)}
-  end
-
-  def attempt_match(parent_node)
-    if include_whitespace
-      begin
-        parent_node.no_postwhitespace = true
-        yield
-      ensure
-        parent_node.no_postwhitespace = false
-      end
-    else
-      yield
-    end
   end
 
   # initialize PatternElement as a parser that matches exactly the string specified
@@ -141,6 +128,9 @@ class PatternElement
       init_many hash
     elsif hash[:match]
       init hash[:match]
+    elsif hash[:rollback_whitespace]
+      self.rollback_whitespace = true
+      return
     else
       raise "extended-options patterns (specified by a hash) must have either :parser=> or a :match=> set"
     end
@@ -149,7 +139,6 @@ class PatternElement
     self.optional ||= hash[:optional] || hash[:optionally]
     self.could_match ||= hash[:could]
     self.negative ||= hash[:dont]
-    self.include_whitespace ||= hash[:include_whitespace]
   end
 
   # initialize the PatternElement as a many-parser from hashed parameters (hash[:many] is assumed to be set)
