@@ -41,9 +41,9 @@ class Parser
     # This allows you to add whatever functionality you want to a your nodes in the final parse tree.
     # Also note you can override the post_match method. This allows you to restructure the parse tree as it is parsed.
     def rule(name,*pattern,&block)
-      pattern=pattern[0] if pattern[0].kind_of?(Array)
-      rule=self.rules[name]||=Rule.new(name,self)
-      self.root_rule||=name
+      pattern = pattern[0] if pattern[0].kind_of?(Array)
+      rule = self.rules[name] ||= Rule.new(name,self)
+      self.root_rule ||= name
       rule.add_variant(pattern,&block)
     end
 

@@ -44,16 +44,16 @@ class PatternElement
   def parse(parent_node)
     attempt_match(parent_node) do
       # run element parser
-      match=parser.call(parent_node)
+      match = parser.call(parent_node)
 
       # Negative patterns (PEG: !element)
-      match=match ? nil : EmptyNode.new(parent_node) if negative
+      match = match ? nil : EmptyNode.new(parent_node) if negative
 
       # Optional patterns (PEG: element?)
-      match=EmptyNode.new(parent_node) if !match && optional
+      match = EmptyNode.new(parent_node) if !match && optional
 
       # Could-match patterns (PEG: &element)
-      match.match_length=0 if match && could_match
+      match.match_length = 0 if match && could_match
 
       if !match && terminal
         # log failures on Terminal patterns for debug output if overall parse fails
@@ -69,7 +69,7 @@ class PatternElement
 
   # initialize PatternElement based on the type of: match
   def init(match)
-    self.match=match
+    self.match = match
     case match
     when TrueClass then init_true
     when String then    init_string match
