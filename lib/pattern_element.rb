@@ -21,7 +21,7 @@ end
 #   :optional
 class PatternElement
   attr_accessor :parser,:optional,:negative,:name,:terminal,:could_match
-  attr_accessor :match,:rule_variant,:rollback_whitespace
+  attr_accessor :match,:rule_variant,:rewind_whitespace
 
   #match can be:
   # true, Hash, Symbol, String, Regexp
@@ -42,7 +42,7 @@ class PatternElement
 
   # attempt to match the pattern defined in self.parser in parent_node.src starting at offset parent_node.next
   def parse(parent_node)
-    return RollbackWhitespaceNode.new(parent_node) if rollback_whitespace
+    return RollbackWhitespaceNode.new(parent_node) if rewind_whitespace
 
     # run element parser
     match = parser.call(parent_node)
@@ -128,8 +128,8 @@ class PatternElement
       init_many hash
     elsif hash[:match]
       init hash[:match]
-    elsif hash[:rollback_whitespace]
-      self.rollback_whitespace = true
+    elsif hash[:rewind_whitespace]
+      self.rewind_whitespace = true
       return
     else
       raise "extended-options patterns (specified by a hash) must have either :parser=> or a :match=> set"

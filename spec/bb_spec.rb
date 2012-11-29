@@ -70,7 +70,7 @@ describe BabelBridge do
       ignore_whitespace
 
       rule :pair, :statement, :end_statement, :statement
-      rule :end_statement, rollback_whitespace, /([\t ]*[\n;])+/
+      rule :end_statement, rewind_whitespace, /([\t ]*[\n;])+/
       rule :statement, "0"
     end
 
@@ -90,7 +90,7 @@ describe BabelBridge do
       ignore_whitespace
 
       rule :pair, :statement, :end_statement, :statement
-      rule :end_statement, rollback_whitespace, /([\t ]*[\n;])+/
+      rule :end_statement, rewind_whitespace, /([\t ]*[\n;])+/
       rule :statement, "0", :one?, :one?, :one?
       rule :one, "1"
     end
@@ -107,7 +107,7 @@ describe BabelBridge do
     new_parser do
       ignore_whitespace
       rule :statements, many(:statement,:end_statement)
-      rule :end_statement, rollback_whitespace, /([\t ]*[;\n])+/
+      rule :end_statement, rewind_whitespace, /([\t ]*[;\n])+/
       rule :statement, "0"
     end
 
@@ -148,7 +148,7 @@ describe BabelBridge do
     new_parser do
       ignore_whitespace
       rule :statements, many(:statement,:end_statement)
-      rule :end_statement, rollback_whitespace, /([\t ]*[;\n])+/
+      rule :end_statement, rewind_whitespace, /([\t ]*[;\n])+/
       rule :statement, :bin_op
       binary_operators_rule :bin_op, :int, ["**", [:/, :*], [:+, "-"]], :right_operators => ["**"]
       rule :int, /\d+/
@@ -162,7 +162,7 @@ describe BabelBridge do
 ENDCODE
   end
 
-  it "should work to rollback_whitespace, :rule" do
+  it "should work to rewind_whitespace, :rule" do
     new_parser do
       ignore_whitespace
       rule :all, :identifier, :parameter?, :identifier do
@@ -170,7 +170,7 @@ ENDCODE
           [[identifier[0].to_sym, parameter && parameter.to_sym], identifier[1].to_sym]
         end
       end
-      rule :parameter, rollback_whitespace, /[ \t]*/, rollback_whitespace, :identifier
+      rule :parameter, rewind_whitespace, /[ \t]*/, rewind_whitespace, :identifier
       rule :identifier, /[_a-zA-Z][_a-zA-Z0-9]*/
     end
 
@@ -178,7 +178,7 @@ ENDCODE
     test_parse("fred foo\nbar") {|parsed|parsed.to_model.should == [[:fred,:foo],:bar]}
   end
 
-  it "should work to rollback_whitespace, many" do
+  it "should work to rewind_whitespace, many" do
     new_parser do
       ignore_whitespace
       rule :all, :identifier, :parameters?, :identifier do
@@ -186,7 +186,7 @@ ENDCODE
           [[identifier[0].to_sym, parameters && parameters.to_s], identifier[1].to_sym]
         end
       end
-      rule :parameters, rollback_whitespace, /[ \t]*/, rollback_whitespace, many(:identifier,",")
+      rule :parameters, rewind_whitespace, /[ \t]*/, rewind_whitespace, many(:identifier,",")
       rule :identifier, /[_a-zA-Z][_a-zA-Z0-9]*/
     end
 
@@ -200,7 +200,7 @@ ENDCODE
       ignore_whitespace
       rule :statements, :statement, "bar"
       rule :statement, :identifier, :parameters?
-      rule :parameters, rollback_whitespace, / */, rollback_whitespace, :identifier
+      rule :parameters, rewind_whitespace, / */, rewind_whitespace, :identifier
       rule :identifier, dont.match("end"), /[_a-zA-Z][_a-zA-Z0-9]*/
     end
 

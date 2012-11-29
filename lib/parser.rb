@@ -137,7 +137,7 @@ class Parser
     def match(*args) PatternElementHash.new.match(*args) end
     def match!(*args) PatternElementHash.new.dont.match(*args) end
 
-    def rollback_whitespace; PatternElementHash.new.rollback_whitespace end
+    def rewind_whitespace; PatternElementHash.new.rewind_whitespace end
 
     def dont; PatternElementHash.new.dont end
     def optionally; PatternElementHash.new.optionally end
