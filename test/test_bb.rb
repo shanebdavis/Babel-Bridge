@@ -58,7 +58,7 @@ class BBTests < TestHelper
 
   def test_foo
     parser=new_parser do
-      rule :foo, ["foo"]
+      rule :foo, "foo"
     end
 
     assert p=parser.parse("foo")
@@ -88,8 +88,8 @@ class BBTests < TestHelper
 
   def test_optional
     parser=new_parser do
-      rule :foo, ["foo", :bar?]
-      rule :bar, ["bar"]
+      rule :foo, "foo", :bar?
+      rule :bar, "bar"
     end
 
     assert parser.parse("foo")
@@ -107,8 +107,8 @@ class BBTests < TestHelper
 
   def test_optional_middle
     parser=new_parser do
-      rule :foo, ["foo", :bar?, "foo"]
-      rule :bar, ["bar"]
+      rule :foo, "foo", :bar?, "foo"
+      rule :bar, "bar"
     end
 
     assert parser.parse("foofoo")
@@ -117,8 +117,8 @@ class BBTests < TestHelper
 
   def test_greedy_optional_middle
     parser=new_parser do
-      rule :foo, ["foo", :bar?, "foo"]
-      rule :bar, ["foo"]
+      rule :foo, "foo", :bar?, "foo"
+      rule :bar, "foo"
     end
 
     assert_nil parser.parse("foofoo")
@@ -127,8 +127,8 @@ class BBTests < TestHelper
 
   def test_not
     parser=new_parser do
-      rule :foo, ["foo", :bar!]
-      rule :bar, ["bar"]
+      rule :foo, "foo", :bar!
+      rule :bar, "bar"
     end
 
     assert_nil parser.parse("foofud") # this should fail because it doesn't match the entire input
@@ -139,7 +139,7 @@ class BBTests < TestHelper
 
   def test_recursive
     parser=new_parser do
-      rule :foo, ["foo", :foo?]
+      rule :foo, "foo", :foo?
     end
 
     assert parser.parse("foo")
@@ -153,8 +153,8 @@ class BBTests < TestHelper
     v1=nil
     v2=nil
     parser=new_parser do
-      v1=rule :foo, ["foo"]
-      v2=rule :foo, ["bar"]
+      v1=rule :foo, "foo"
+      v2=rule :foo, "bar"
     end
 
     assert r1=parser.parse("foo")
@@ -165,8 +165,8 @@ class BBTests < TestHelper
 
   def test_add
     parser=new_parser do
-      rule :add, [:number,"+",:number]
-      rule :number, [/[0-9]+/]
+      rule :add, :number, "+", :number
+      rule :number, /[0-9]+/
     end
 
     assert parser.parse("1+1")
@@ -175,7 +175,7 @@ class BBTests < TestHelper
 
   def test_method
     parser=new_parser do
-      rule :number, [/[0-9]+/] do
+      rule :number, /[0-9]+/ do
         def number
           text.to_i
         end
