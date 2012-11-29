@@ -205,7 +205,7 @@ ENDCODE
     end
 
     test_parse("fred\nbar")
-    #test_parse("fred foo\nbar")
+    test_parse("fred foo\nbar")
   end
 
 end
