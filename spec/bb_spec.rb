@@ -16,7 +16,7 @@ describe BabelBridge do
   def test_parse(string,options={},&block)
     parser = options[:parser] || @parser
     res = parser.parse(string)
-    yield res if block
+    yield res if res && block
     if options[:should_fail_at]
       res.should == nil
       parser.failure_index.should == options[:should_fail_at]
@@ -195,21 +195,47 @@ ENDCODE
     test_parse("fred foo, bar\nbar")  {|parsed| parsed.to_model.should==[[:fred,"foo, bar"],:bar]}
   end
 
-  it "should work to include_whitespace(:rule)" do
+  it "dont.match shouldn't consume any whitespace" do
     new_parser do
       ignore_whitespace
-      rule :statements, many(:identifier_get, :end_statement) do
+      rule :statements, :statement, :statement do
         def to_model
-          identifier_get.collect{|a|a.to_model}
+          statement.collect{|a|a.to_model}
         end
       end
-      rule :identifier_get, :identifier, :parameters? do
+      rule :statement, :identifier, :parameters? do
         def to_model
           [identifier.to_sym, parameters && parameters.to_model]
         end
       end
-      rule :end_statement, include_whitespace(/([\t ]*[;\n])+/)
-      rule :parameters, include_whitespace(/[ \t]*/), include_whitespace(many(:identifier,",")) do
+      #rule :end_statement, include_whitespace(/ *\n/)
+      rule :parameters, include_whitespace(/ */), include_whitespace(:identifier) do
+        def to_model
+          identifier.collect{|a|a.to_sym}
+        end
+      end
+      rule :identifier,  dont.match("end"), /[_a-zA-Z][_a-zA-Z0-9]*/
+    end
+
+    test_parse("fred\nbar") {|parsed|parsed.to_model.should == [[:fred,nil],[:bar,nil]]}
+    test_parse("fred foo\nbar") {|parsed|parsed.to_model.should == [[:fred,[:foo]],[:bar,nil]]}
+  end
+
+  it "shouldnt infinite loop" do
+    new_parser do
+      ignore_whitespace
+      rule :statements, :statement, "bar" do
+        def to_model
+          statement.collect{|a|a.to_model}
+        end
+      end
+      rule :statement, :identifier, :parameters? do
+        def to_model
+          [identifier.to_sym, parameters && parameters.to_model]
+        end
+      end
+      rule :end_statement, include_whitespace(/ *\n/)
+      rule :parameters, include_whitespace(/ */), include_whitespace(:identifier) do
         def to_model
           identifier.collect{|a|a.to_sym}
         end
@@ -219,9 +245,6 @@ ENDCODE
 
     test_parse("fred\nbar") {|parsed|parsed.to_model.should == [[:fred,nil],[:bar,nil]]}
     test_parse("fred foo\nbar") {|parsed|parsed.to_model.should == [[:fred,[:foo]],[:bar,nil]]}
-    test_parse("fred foo,too\nbar") {|parsed|parsed.to_model.should == [[:fred,[:foo,:too]],[:bar,nil]]}
-    test_parse("fred foo, too\nbar") {|parsed|parsed.to_model.should == [[:fred,[:foo,:too]],[:bar,nil]]}
   end
-
 
 end
