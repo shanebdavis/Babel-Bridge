@@ -34,7 +34,7 @@ class NonTerminalNode < Node
     matches.length
   end
 
-  def <<(node)
+  def add_match(node)
     @last_non_empty_node = node unless node.kind_of?(EmptyNode)
     matches<<node
     update_match_length

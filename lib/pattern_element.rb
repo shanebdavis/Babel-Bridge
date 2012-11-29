@@ -160,12 +160,12 @@ class PatternElement
           #match primary
           match = single_parser.call many_node
           break unless match
-          many_node << match
+          many_node.add_match match
 
           #match delimiter
           delimiter_match = delimiter_pattern_element.parse many_node
           break unless delimiter_match
-          many_node << delimiter_match
+          many_node.add_match delimiter_match
         end
         many_node.separate_delimiter_matches
       else
@@ -173,7 +173,7 @@ class PatternElement
         while true
           match = single_parser.call many_node
           break unless match
-          many_node << match
+          many_node.add_match match
         end
       end
 
