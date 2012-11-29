@@ -93,7 +93,7 @@ class RuleNode < NonTerminalNode
   # adds a match with name (optional)
   def add_match(match,name=nil)
     reset_matches_by_name
-    matches<<match
+    self<<match
     match_names<<name
 
     update_match_length

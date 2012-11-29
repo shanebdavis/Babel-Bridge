@@ -15,7 +15,7 @@ class ManyNode < NonTerminalNode
 
   def separate_delimiter_matches
     count = 0
-    @matches, @delimiter_matches = @matches.partition {|el| count+=1;(count%2==1)}
+    @matches, @delimiter_matches = matches.partition {|el| count+=1;(count%2==1)}
     @delimiter_matches = @delimiter_matches[0..@matches.length-2] #delimiter_matches should be exactly 1 shorter
     update_match_length
   end
