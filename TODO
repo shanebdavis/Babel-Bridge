@@ -1,3 +1,12 @@
+2012-12-17
+----------
+
+Ignoreing whitespace: My current thinking is ignore-whitespace should be considered roughly the same thing as a "token delimiter" much like the optional deliminater of the "many" node. We could then eliminate the need for "rewind_whitespace" if we allowed you to change the "token delimiter" for a given rule. Often when you need rewind_whitespace, you need it more than once in the same rule. It seems silly to first match the whitespace, and then unmatch it. Let's just allow you to change the delimiter to whatever you want - including the empty string - as well as have a global default (which ignore_whitespace sets to /\s*/).
+
+The one question is should we provide some way to access what this "token delimiter" matches? Note this gets a little strange with "many" and it's delimiter since it will be matching: match_pattern, token_delimiter, match_delimiter, token_delimiter, match_pattern.
+
+I also have the broad question of how do we support indention based languages like python or coffeescript.
+
 2012-11-13
 ----------
 
