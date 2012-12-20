@@ -11,7 +11,7 @@ module BabelBridge
 # not subclassed
 class EmptyNode < Node
   def inspect(options={})
-    "EmptyNode" unless options[:simple]
+    "EmptyNode" if options[:verbose]
   end
 
   def matches; [self]; end
@@ -20,7 +20,7 @@ end
 
 class RollbackWhitespaceNode < Node
   def inspect(options={})
-    "RollbackWhitespace" unless options[:simple]
+    "RollbackWhitespace" if options[:verbose]
   end
 
   def matches; [self]; end

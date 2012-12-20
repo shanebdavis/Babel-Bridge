@@ -34,13 +34,17 @@ class RuleNode < NonTerminalNode
     end
   end
 
+  def relative_class_name
+    self.class.to_s.split(parser.class.to_s+"::",2)[1].strip
+  end
+
   def inspect(options={})
-    return "#{self.class}" if matches.length==0
+    return relative_class_name if matches.length==0
     matches_inspected=matches.collect{|a|a.inspect(options)}.compact
     if matches_inspected.length==0 then nil
     elsif matches_inspected.length==1
-      m=matches_inspected[0]
-      ret="#{self.class} > "+matches_inspected[0]
+      m = matches_inspected[0]
+      ret = "#{relative_class_name} > "+matches_inspected[0]
       if options[:simple]
         ret=if m["\n"] then m
         else
@@ -50,7 +54,7 @@ class RuleNode < NonTerminalNode
       end
       ret
     else
-      (["#{self.class}"]+matches_inspected).join("\n").gsub("\n","\n  ")
+      (["#{relative_class_name}"]+matches_inspected).join("\n").gsub("\n","\n  ")
     end
   end
 

@@ -17,7 +17,7 @@ class TerminalNode < Node
   end
 
   def inspect(options={})
-    "#{text.inspect}" unless options[:simple] && text[/^\s*$/] # if simple && node only matched white-space, return nil
+    "#{text.inspect}" unless !options[:verbose] && text[/^\s*$/] # if only show whitespace matches if verbose
   end
 
   def matches; [self]; end

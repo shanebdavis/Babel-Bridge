@@ -2,8 +2,8 @@ module BabelBridge
 class Tools
   class << self
 
-    def indent(string,indent="  ")
-      indent + string.gsub("\n", "\n#{indent}")
+    def indent(string, first_indent = "  ", rest_indent = first_indent)
+      first_indent + string.gsub("\n", "\n#{rest_indent}")
     end
 
     def symbols_to_strings(array)
@@ -21,7 +21,7 @@ class Tools
       array.sort_by {|a| a.kind_of?(Regexp) ? 0 : -a.length}
     end
 
-    # Takes an array of Strings and Regexp and generates a new Regexp 
+    # Takes an array of Strings and Regexp and generates a new Regexp
     # that matches the or ("|") of all strings and Regexp
     def array_to_or_regexp_string(array)
       array = symbols_to_strings array.flatten
