@@ -242,8 +242,18 @@ class Parser
     ret
   end
 
-  def node_list_string(node_list,common_root=[])
-    node_list && node_list[common_root.length..-1].map{|p|"#{p.class}(#{p.offset})"}.join(" > ")
+  # options[:verbose] => false
+  def node_list_string(node_list,common_root=[],options={})
+    return unless node_list
+    if options[:verbose]
+      node_list[common_root.length..-1]
+    else
+      [node_list[-1]]
+    end.select do |p|
+      p.class.to_s.index(BabelBridge.to_s)!=0
+    end.map do |p|
+      "#{p.relative_class_name}"
+    end.join(" > ")
   end
 
   def nodes_interesting_parse_path(node)
@@ -254,7 +264,8 @@ class Parser
   end
 
 
-  def expecting_output
+  # options[:verbose] => false
+  def expecting_output(options={})
     return "" if expecting_list.length==0
     common_root=nil
     expecting_list.values.each do |e|
@@ -275,13 +286,13 @@ class Parser
     <<ENDTXT
 
 Parse path at failure:
-  #{node_list_string(common_root)}
+  #{node_list_string(common_root,[],:verbose=>true)}
 
 Expecting#{expecting_list.length>1 ? ' one of' : ''}:
-  #{expecting_list.values.collect do |a|
-    list=node_list_string(nodes_interesting_parse_path(a[:node]),common_root)
-    [list,"#{a[:pattern].inspect} (#{list})"]
-  end.sort.map{|i|i[1]}.join("\n  ")}
+#{Tools.uniform_tabs(Tools.indent(expecting_list.values.collect do |a|
+    list=node_list_string(nodes_interesting_parse_path(a[:node]),common_root,options)
+    "#{a[:pattern].inspect}\t#{list}"
+  end.sort.join("\n"),"  "))}
 ENDTXT
   end
 

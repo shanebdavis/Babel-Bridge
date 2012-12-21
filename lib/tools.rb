@@ -6,6 +6,19 @@ class Tools
       first_indent + string.gsub("\n", "\n#{rest_indent}")
     end
 
+    def uniform_tabs(string)
+      lines = string.split("\n").collect{|line|line.split("\t")}
+      max_fields = lines.collect {|line| line.length}.max
+      max_fields.times do |field|
+        max_field_length = lines.collect {|line| (line[field]||"").length}.max
+        formatter = "%-#{max_field_length}s "
+        lines.each_with_index do |line,i|
+          lines[i][field] = formatter%line[field] if line[field]
+        end
+      end
+      lines.collect {|line|line.join}.join("\n")
+    end
+
     def symbols_to_strings(array)
       array.collect {|op| op.kind_of?(Symbol) ? op.to_s : op}
     end

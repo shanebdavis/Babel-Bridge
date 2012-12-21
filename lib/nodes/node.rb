@@ -9,6 +9,10 @@ end
 class Node
   attr_accessor :src,:offset,:match_length,:parent,:parser,:prewhitespace_range
 
+  def relative_class_name
+    (self.class.to_s.split(parser.class.to_s+"::",2)[1]||self.class.to_s).strip
+  end
+
   # no_postwhitespace is used when parsing to temporarilly rollback the preceeding whitespace while
   # attempting to match an ignore_whitespace pattern.
   # It should always be false again once parsing completes or fails.

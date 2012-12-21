@@ -34,10 +34,6 @@ class RuleNode < NonTerminalNode
     end
   end
 
-  def relative_class_name
-    self.class.to_s.split(parser.class.to_s+"::",2)[1].strip
-  end
-
   def inspect(options={})
     return relative_class_name if matches.length==0
     matches_inspected=matches.collect{|a|a.inspect(options)}.compact
