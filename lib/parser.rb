@@ -195,7 +195,9 @@ class Parser
   end
 
   def log_parsing_failure(index,expecting)
-    if index>failure_index
+    if matching_negative?
+      # ignored
+    elsif index>failure_index
       @expecting_list = {expecting[:pattern] => expecting}
       @failure_index = index
     elsif index == failure_index
@@ -203,6 +205,19 @@ class Parser
     else
       # ignored
     end
+  end
+
+  def matching_negative
+    @matching_negative_depth||=0
+    @matching_negative_depth+=1
+  end
+
+  def unmatching_negative
+    @matching_negative_depth-=1
+  end
+
+  def matching_negative?
+    (@matching_negative_depth||0) > 0
   end
 
   def parse(src,offset=0,rule=nil)

@@ -1,65 +1,83 @@
-2012-12-17
-----------
+TODO: merge date entries into new TOPIC organized section
 
-Ignoreing whitespace: My current thinking is ignore-whitespace should be considered roughly the same thing as a "token delimiter" much like the optional deliminater of the "many" node. We could then eliminate the need for "rewind_whitespace" if we allowed you to change the "token delimiter" for a given rule. Often when you need rewind_whitespace, you need it more than once in the same rule. It seems silly to first match the whitespace, and then unmatch it. Let's just allow you to change the delimiter to whatever you want - including the empty string - as well as have a global default (which ignore_whitespace sets to /\s*/).
+By-Topic
+--------
 
-The one question is should we provide some way to access what this "token delimiter" matches? Note this gets a little strange with "many" and it's delimiter since it will be matching: match_pattern, token_delimiter, match_delimiter, token_delimiter, match_pattern.
+Parser Feedback (Dec 2012)
 
-I also have the broad question of how do we support indention based languages like python or coffeescript.
+  If parsing failed and there was a negative (dont) match that prevented further parsing at the failure index, report it in a separate list: "Possibly could have continued if DIDN'T match:"
 
-2012-11-13
-----------
+Convert ignore_whitespace engine to "delimiters" (Dec 2012)
 
-Instead of "rewind_whitespace", I'd like to have a more general ability to rewind an arbitrary regexp or string match.
+  Replace engine under the hood for ignore_whitespace:
 
-Would like to convert all Node member variables "offset" and "length" to "range" -- use Ruby ranges.
+  * Add global inter-token delimiter pattern with optional, per-rule overrides.
+  * ignore_whitespace will still be supported - just sets the global delimiter to /\s*/
+  * rewind_whitespace will be removed - override the containing rule's delimiter to ""
 
-"ignore_whitespace" should be refactored to be "token_delimiter". This should take any BB pattern, not just a regexp. Otherwise it works basically the same. It just gives you full control over what you match and ignore between tokens. We should also have the "to_s" on nodes NOT return the trailing token_delimiter string, though it should probably return any token_delimiters in between.
+  possible syntax:
 
-Left-Recursion idea: An alternative behavior for left-recursion could be "greedy". The first time it happens, we proceed to any alternate rules. If there are none, then we fail. If we succeed, then attempt to match with just one recursive loop. If that succeeds, we advance to two recursive loops. This is kind-of like tail recursion optimization execept it is more like head-recursion in this sense :).
+  rule :rule_name, pattern_a, pattern_b, :delimiter => "" # disable global delimiter; pattern_b must come immediately after pattern_a
+  rule :rule_name, pattern_a, pattern_b, :delimiter => "..." # must match "..." between pattern_a and pattern_b
 
-2011-08-13
-----------
+  Discussion:
 
-Arbitrary nesting of patterns. Importantly, including an or(a,b) pattern matcher. This just streamlines some rules into one-liners.
+  ignore-whitespace should be considered a "token delimiter" much like the optional delimiter of the "many" node. We could then eliminate the need for "rewind_whitespace" if we allowed you to change the "token delimiter" for a given rule. Often when you need rewind_whitespace, you need it more than once in the same rule. It seems silly to first match the whitespace, and then unmatch it. Let's just allow you to change the delimiter to whatever you want - including the empty string - as well as have a global default (which ignore_whitespace sets to /\s*/).
 
-When matching "many(:stick)", it would be nice to be able to refer to all the matches as "sticks" not "stick". Need "pluralize".
+  The one question is should we provide some way to access what this "token delimiter" matches? Note this gets a little strange with "many" and it's delimiter since it will be matching: match_pattern, token_delimiter, match_delimiter, token_delimiter, match_pattern.
 
-When "parser did not match entire input." I want to also output the equivelent of "was expecting": "could have continued if found..."
+"Python-like" Support (Dec 2012)
 
-2010-12-24 Left-Recursion
-----------
+  Add clean, easy support for indention based languages like python or coffeescript.
 
-http://en.wikipedia.org/wiki/Parsing_expression_grammar
-Left-Recursion: Given what wikipedia says about left-recursion, I don't want to "support it" at the expense of losing linear-time parsing. I think the right answer is to "handle it nicely":
+Nodes use ruby ranges instead of "offset" and "length" (Nov 2012)
 
-* detect when we attempt to match a rule-variant that is alreadying being matched at the same caracter position further up the stack.
-* When we detect such a situation, immediately fail to match - as attempting to match leads to infinite recursion.
-* This changes parser behavior in that it will not cause an error. Instead, the parser will proceed to attempt to match other variants.
+  Would like to convert all Node member variables "offset" and "length" to "range" -- use Ruby ranges.
 
-2010-12-13
-----------
+Left-Recursion (Nov 2012)
 
-I want the ability to add methods to the base-class for all Nodes on a per-parser basis.
+  http://en.wikipedia.org/wiki/Parsing_expression_grammar
 
-This means that each parser needs to define a new node base-class, derived from BabelBridge::Node, from
-which all the Rule Nodes derive.
+  Left-Recursion: Given what wikipedia says about left-recursion, I don't want to "support it" at the expense of losing linear-time parsing. I think the right answer is to "handle it nicely"
 
-2010-12-12
-----------
+  Detection:
+    * detect when we attempt to match a rule-variant that is already being matched at the same character position further up the stack.
+    * When we detect such a situation, immediately fail to match - as attempting to match leads to infinite recursion.
 
-Right now an Optional node that is not matched returns an instance of EmptyNode. However, in the parsed result, ideally that match-slot would have the value "nil". How can we accomplish that simply?
+  Idea 1: detect and throw error
 
+  Idea 2: This changes parser behavior in that it will not cause an error. Instead, the parser will proceed to attempt to match other variants.
 
-2010-12-03
-----------
+  Idea 3: An alternative behavior for left-recursion could be "greedy". The first time it happens, we proceed to any alternate rules. If there are none, then we fail. If we succeed, then attempt to match with just one recursive loop. If that succeeds, we advance to two recursive loops. This is kind-of like tail recursion optimization except it is more like head-recursion in this sense :).
 
-TODO: allow arbitrary nesting of anonymous patterns
-TODO: add OR anonymous pattern
+Arbitrary Nested Patterns (Dec 2010)
+
+  rule :my_rule, dont.match("hi", "there", /mom|dad/)
+
+  This just streamlines some rules into one-liners.
+
+Add "or(a,b)" Pattern Matcher (Dec 2010)
+
+  Including an or(a,b) pattern matcher.
+
+Pluralize Many-Rules (?) (Aug 2011)
+
+  When matching "many(:stick)", it would be nice to be able to refer to all the matches as "sticks" not "stick". Need "pluralize".
+
+  Counter: our namespace is already pretty overloaded. This may confuse things.
+
+Add Shared Methods for all Nodes for a specific Parser
+
+  I want the ability to add methods to the base-class for all Nodes on a per-parser basis.
+
+  This means that each parser needs to define a new node base-class, derived from BabelBridge::Node, from which all the Rule Nodes derive.
+
+Better handling of EmptyNode? (Dec 2010)
+
+  Right now an Optional node that is not matched returns an instance of EmptyNode. However, in the parsed result, ideally that match-slot would have the value "nil". How can we accomplish that simply?
 
 2010-11-*
 ---------
-TODO-FEATURE: :pre_delimiter option for many()
 TODO-FEATURE: The "expecting" feature is so good I wonder if we should add the ability to make and apply suggestions to "repair the parse".
   This would need:
     a) default values for regex terminals
@@ -68,10 +86,6 @@ TODO-FEATURE: The "expecting" feature is so good I wonder if we should add the a
     b) an interactive prompter if there is more than one option
 
 TODO-IMPROVEMENT: "Expecting" should show line numbers instead of char numbers, but it should only be calculated on demand. This means we need a smarter formatter for our possible-error-logging.
-
-TODO-BUG: "Expecting" doesn't do the right thing if a "dont" clause matched
-  Should say "something other than #{the don't clause}"
-  Ideally, we would continue matching and list all the possible next clauses that would allow us to continue
 
 IDEA: could use the "-" prefix operator to mean "dont":
   -"this"

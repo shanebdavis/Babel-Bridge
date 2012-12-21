@@ -45,7 +45,12 @@ class PatternElement
     return RollbackWhitespaceNode.new(parent_node) if rewind_whitespace
 
     # run element parser
-    match = parser.call(parent_node)
+    begin
+      parent_node.parser.matching_negative if negative
+      match = parser.call(parent_node)
+    ensure
+      parent_node.parser.unmatching_negative if negative
+    end
 
     # Negative patterns (PEG: !element)
     match = match ? nil : EmptyNode.new(parent_node) if negative
