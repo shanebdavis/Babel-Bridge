@@ -16,6 +16,15 @@ describe BabelBridge do
     test_parse "foobar "
   end
 
+  it "parse that matches nothing on a many? on the first character should still report valid parser_failure_info" do
+    new_parser do
+      rule :foobar, many?("foo")
+    end
+
+    res = parser.parse "bar"
+    parser.parser_failure_info(:verbose => true).class.should == String
+  end
+
   it "the failure_index should be the furthest point reached, even if we managed to successfully match less" do
     new_parser do
       ignore_whitespace

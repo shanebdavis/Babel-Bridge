@@ -329,7 +329,7 @@ ENDTXT
     if @parsing_did_not_match_entire_input
       ret+="\nParser did not match entire input.\n"
       if verbose
-        ret+="\nParsed:\n#{Tools::indent failed_parse.inspect}\n"
+        ret+="\nParsed:\n#{Tools::indent failed_parse.inspect||"(nothing)"}\n"
       end
     end
 
