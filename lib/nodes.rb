@@ -4,7 +4,6 @@
   terminal_node
   non_terminal_node
   rule_node
-  many_node
   root_node
 }.each do |file|
   require File.join(File.dirname(__FILE__),"nodes",file)
