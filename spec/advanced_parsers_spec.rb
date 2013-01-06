@@ -4,17 +4,14 @@ describe "advanced parsing" do
   include TestParserGenerator
 
   it "test_custom_parser" do
-    puts "custom parser"
     new_parser do
       rule :foo, (custom_parser do |parent_node|
         offset=parent_node.next
         src=parent_node.src
-        puts "james src=#{src.inspect}"
 
         # Note, the \A anchors the search at the beginning of the string
         if src[offset..-1].index(/\A[A-Z]+/)==0
           endpattern=$~.to_s
-          puts "endpattern=#{endpattern.inspect}"
           if i=src.index(endpattern,offset+endpattern.length)
             range = offset..(i+endpattern.length)
             BabelBridge::TerminalNode.new(parent_node,range,"endpattern")
@@ -33,7 +30,6 @@ describe "advanced parsing" do
     new_parser do
       binary_operators_rule :bin_op, :int, ["**", [:/, :*], [:+, "-"]], :right_operators => ["**"] do
         def evaluate
-          puts matches_by_name.inspect
           "(#{left.evaluate}#{operator}#{right.evaluate})"
         end
       end

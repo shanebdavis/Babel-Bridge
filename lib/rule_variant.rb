@@ -12,7 +12,6 @@ class RuleVariant
     @pattern = options[:pattern]
     @rule = options[:rule]
     @variant_node_class = options[:variant_node_class]
-    puts "@variant_node_class=#{@variant_node_class} self.class = #{self.class}"
     raise "variant_node_class required" unless variant_node_class
     @delimiter = options[:delimiter]
   end
@@ -55,8 +54,6 @@ class RuleVariant
     node.pop_match if node.last_match && node.last_match.delimiter
 
     node.match parser.delimiter_pattern if root_rule?
-
-    puts "node.next=#{node.next} node=#{node.inspect} match_range=#{node.match_range}"
 
     node && node.post_match_processing
   end

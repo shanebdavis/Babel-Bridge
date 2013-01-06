@@ -30,7 +30,6 @@ class RuleNode < NonTerminalNode
 
   def add_match_name(match,name)
     return unless name
-    puts "add_match_name #{match.inspect}, #{name.inspect}"
     if current = matches_by_name[name]
       matches_by_name[name] = MultiMatchesArray.new([current]) if !current.kind_of? MultiMatchesArray
       matches_by_name[name] << match
@@ -95,7 +94,6 @@ class RuleNode < NonTerminalNode
 
   # adds a match with name (optional)
   def add_match(match,name=nil)
-    puts "add_match #{match.inspect}, #{name.inspect}"
     return unless match
     return match if match==self
 
@@ -106,7 +104,7 @@ class RuleNode < NonTerminalNode
   end
 
   def pop_match
-    matches.pop.tap {update_match_length;puts "#{self.class} match_range=#{match_range.inspect}"}
+    matches.pop.tap {update_match_length}
   end
 
   # Attempts to match the pattern_element starting at the end of what has already been matched
@@ -114,7 +112,6 @@ class RuleNode < NonTerminalNode
   # returns nil on if pattern_element wasn't matched; non-nil if it was skipped or matched
   def match(pattern_element)
     @num_match_attempts += 1
-    puts "@num_match_attempts =#{@num_match_attempts.inspect} pattern_element = #{pattern_element.inspect}"
     return :no_pattern_element unless pattern_element
     return :skipped if pattern_element.delimiter &&
       (
@@ -126,7 +123,6 @@ class RuleNode < NonTerminalNode
       )
 
     if result = pattern_element.parse(self)
-      puts "#{self.class} matched: #{result.inspect} (#{{:result_class => result.class, :pattern_element => pattern_element }}) self==result ? #{self == result}"
       add_match result, pattern_element.name # success, but don't keep EmptyNodes
     end
   end
@@ -152,8 +148,6 @@ class RuleNode < NonTerminalNode
         @matches = matches[0..matches_before-1]
         update_match_length
       end
-    end.tap do
-      puts "match_length = #{match_length} match_length_before = #{match_length_before}"
     end
   end
 

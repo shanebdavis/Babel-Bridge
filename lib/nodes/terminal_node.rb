@@ -14,7 +14,6 @@ class TerminalNode < Node
     self.offset = range.min
     self.match_length = range.max-range.min
     self.pattern = pattern
-    puts match_length:match_length, offset:offset, match_range:match_range, range:range
   end
 
   def inspect(options={})

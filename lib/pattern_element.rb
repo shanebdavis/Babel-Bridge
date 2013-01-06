@@ -167,7 +167,6 @@ class PatternElement
       raise "extended-options patterns (specified by a hash) must have either :parser=> or a :match=> set"
     end
 
-    puts "#{self.class}.init_hash hash=#{hash.inspect}"
     self.name = hash[:as] || self.name
     self.optional ||= hash[:optional] || hash[:optionally]
     self.could_match ||= hash[:could]
@@ -177,9 +176,7 @@ class PatternElement
   # initialize the PatternElement as a many-parser from hashed parameters (hash[:many] is assumed to be set)
   def init_many(hash)
     # generate single_parser
-    puts "init_many 1"
     pattern_element = PatternElement.new(hash[:many], @init_options.merge(name:hash[:as]))
-    puts "init_many 2"
 
     # generate delimiter_pattern_element
     many_delimiter_pattern_element = hash[:delimiter] && PatternElement.new(hash[:delimiter], @init_options.merge(name:hash[:delimiter_name]))

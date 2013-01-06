@@ -196,7 +196,6 @@ class Parser
   end
 
   def log_parsing_failure(index,expecting)
-    puts "log_parsing_failure #{index} #{failure_index.inspect}"
     if matching_negative?
       # ignored
     elsif index>failure_index
@@ -212,12 +211,10 @@ class Parser
   def matching_negative
     @matching_negative_depth||=0
     @matching_negative_depth+=1
-    puts "matching_negative++ = #{@matching_negative_depth}"
   end
 
   def unmatching_negative
     @matching_negative_depth-=1
-    puts "matching_negative-- = #{@matching_negative_depth}"
   end
 
   def matching_negative?
