@@ -17,18 +17,6 @@ class BBTests < TestHelper
   end
 
 
-  def test_rule_class
-    parser=new_parser do
-      rule :foo, "foo"
-      rule :foo, "bar"
-      node_class :foo do
-        def value; text end
-      end
-    end
-
-    assert_equal "foo",parser.parse("foo").value
-    assert_equal "bar",parser.parse("bar").value
-  end
 
 
   def disabled_test_recursive_block

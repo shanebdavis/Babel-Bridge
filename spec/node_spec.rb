@@ -100,4 +100,18 @@ describe "basic parsing" do
     test_parse("1,2").outter.should == "1,2"
     test_parse("1,A,3").outter.should == "1,3"
   end
+
+
+  it "test_rule_class" do
+    new_parser do
+      rule :foo, "foo"
+      rule :foo, "bar"
+      node_class :foo do
+        def value; text end
+      end
+    end
+
+    test_parse("foo").value.should=="foo"
+    test_parse("bar").value.should=="bar"
+  end
 end
