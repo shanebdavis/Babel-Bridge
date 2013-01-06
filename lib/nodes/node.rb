@@ -7,7 +7,7 @@ end
 
 # base class for all parse-tree nodes
 class Node
-  attr_accessor :src,:offset,:match_length,:parent,:parser,:prewhitespace_range
+  attr_accessor :src,:offset,:match_length,:parent,:parser,:prewhitespace_range,:delimiter,:many_delimiter
 
   def relative_class_name
     (self.class.to_s.split(parser.class.to_s+"::",2)[1]||self.class.to_s).strip
@@ -27,29 +27,16 @@ class Node
     offset + match_length
   end
 
+  def remaining_src(sub_offset)
+    src[self.next+sub_offset..-1]
+  end
+
   def match_range
     offset..(offset+match_length-1)
   end
 
-  def postwhitespace_range_without_no_postwhitespace
-    parser.white_space_range offset_after_match
-  end
-
-  def postwhitespace_range
-    r = postwhitespace_range_without_no_postwhitespace
-    no_postwhitespace ? r.first..r.first-1 : r
-  end
-
-  def postwhitespace
-    src[postwhitespace_range]
-  end
-
-  def prewhitespace
-    src[prewhitespace_range]
-  end
-
   # called when a ruled is matched
-  def matched
+  def on_matched
   end
 
   def to_s
@@ -71,7 +58,6 @@ class Node
       self.parent=parent_or_parser
       self.parser=parent.parser
       self.offset=parent.next
-      self.prewhitespace_range=parent.postwhitespace_range
       self.src=parent.src
       raise "parent node does not have parser set" unless parser
     else
@@ -81,12 +67,6 @@ class Node
 
   def initialize(parent)
     node_init(parent)
-  end
-
-  # after a node has been matched, the node will get this called on itself
-  # It can then rewrite itself however it wishes
-  def post_match
-    self
   end
 
   # Returns a human-readable representation of the parse tree
@@ -99,7 +79,7 @@ class Node
   #********************
   # info methods
   #********************
-  def next; postwhitespace_range.last+1 end # index of first character after match and any trailing whitespace
+  alias :next :offset_after_match
   def text; src[match_range] end  # the substring in src matched
 
   # length returns the number of sub-nodes
@@ -111,11 +91,23 @@ class Node
     return parent ? parent.parent_list+[parent] : []
   end
 
+  # walk down the children chain as long as there is only one child at each level
+  # log and return the path
+  def onlychildren_list
+    if matches.length == 1
+      [self] + matches[0].onlychildren_list
+    else
+      [self]
+    end
+  end
+
+  def path_string(node_list)
+    node_list.collect{|n|n.class}.join ' > '
+  end
+
   def node_path
-    "#{parent && (parent.node_path+' > ')}#{self.class}(#{offset})"
+    path_string parent_list
   end
 end
 
-class RootNode < Node
-end
 end

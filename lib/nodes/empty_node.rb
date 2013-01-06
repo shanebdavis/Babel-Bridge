@@ -15,25 +15,6 @@ class EmptyNode < Node
   end
 
   def matches; [self]; end
-
 end
 
-class RollbackWhitespaceNode < Node
-  def inspect(options={})
-    "RollbackWhitespace" if options[:verbose]
-  end
-
-  def matches; [self]; end
-
-  def initialize(parent)
-    super
-    self.match_length = 0
-    self.offset = parent.postwhitespace_range.first
-  end
-
-  def postwhitespace_range
-    @postwhitespace_range ||= offset_after_match .. offset_after_match-1
-  end
-
-end
 end

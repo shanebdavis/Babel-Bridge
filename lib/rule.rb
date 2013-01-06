@@ -11,7 +11,7 @@ class Rule
   end
 
   # creates a new sub_class of the node_class for a variant
-  def create_next_node_variant_class
+  def new_variant_node_class
     rule_variant_class_name = "#{name}_node#{self.variants.length+1}".camelize
     parser.const_set rule_variant_class_name, Class.new(node_class)
   end
@@ -24,11 +24,17 @@ class Rule
     @node_class = create_node_class
   end
 
-  def add_variant(pattern, &block)
-    rule_variant_class = create_next_node_variant_class
-    variants << RuleVariant.new(pattern, self, rule_variant_class)
-    rule_variant_class.class_eval &block if block
-    rule_variant_class
+  def root_rule?
+    parser.root_rule == name
+  end
+
+  def add_variant(options={}, &block)
+    new_variant_node_class.tap do |variant_node_class|
+      options[:variant_node_class] = variant_node_class
+      options[:rule] = self
+      variants << RuleVariant.new(options)
+      variant_node_class.class_eval &block if block
+    end
   end
 
   def parse(node)

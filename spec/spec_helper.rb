@@ -16,7 +16,7 @@ module TestParserGenerator
   #   :failure_ok
   def test_parse(string,options={},&block)
     parser = options[:parser] || @parser
-    res = parser.parse(string)
+    res = parser.parse(string,options)
     yield res if res && block
     if options[:should_fail_at]
       res.should == nil

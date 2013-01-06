@@ -109,7 +109,7 @@ class BinaryOperatorProcessor
     return operands[0] if operands.length==1
 
     i = index_of_lowest_precedence(operators)
-
+    puts "generate_tree #{operands.inspect} #{operators.inspect}"
     operator = operators[i]
     new_operand = node_class.new(parent_node)
     new_operand.add_match generate_tree(operands[0..i], operators[0..i-1],new_operand), :left

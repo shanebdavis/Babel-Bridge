@@ -8,7 +8,7 @@ class Parser
   # These methods are used in the creation of a Parser Sub-Class to define
   # its grammar
   class <<self
-    attr_accessor :rules, :module_name, :root_rule, :whitespace_regexp
+    attr_accessor :rules, :module_name, :root_rule, :delimiter_pattern
 
     def rules
       @rules||={}
@@ -37,19 +37,20 @@ class Parser
     #
     # The block is executed in the context of the rule-varient's node type, a subclass of: RuleNode
     # This allows you to add whatever functionality you want to a your nodes in the final parse tree.
-    # Also note you can override the post_match method. This allows you to restructure the parse tree as it is parsed.
+    # Also note you can override the on_post_match method. This allows you to restructure the parse tree as it is parsed.
     def rule(name,*pattern,&block)
       rule = self.rules[name] ||= Rule.new(name,self)
-      self.root_rule ||= name
-      rule.add_variant(pattern,&block)
+      @root_rule ||= name
+      options =  pattern[-1].kind_of?(Hash) ? pattern.pop : {}
+      rule.add_variant options.merge(:pattern => pattern), &block
     end
 
     # options
     # => right_operators: list of all operators that should be evaluated right to left instead of left-to-write
     #       typical example is the "**" exponentiation operator which should be evaluated right-to-left.
-    def binary_operators_rule(name,elements_pattern,operators,options={},&block)
+    def binary_operators_rule(name,operand_rule_name,operators,options={},&block)
       right_operators = options[:right_operators]
-      rule(name,many(elements_pattern,Tools::array_to_or_regexp(operators))) do
+      rule name, many(operand_rule_name,Tools::array_to_or_regexp(operators)).delimiter_name(:operators).as(:operands) do
         self.class_eval &block if block
         class <<self
           attr_accessor :operators_from_rule, :right_operators
@@ -64,16 +65,17 @@ class Parser
           @operator||=operator_node.to_s.to_sym
         end
 
-        # Override the post_match method to take the results of the "many" match
+        def operator_processor
+          self.class.operator_processor
+        end
+
+        # Override the on_post_match method to take the results of the "many" match
         # and restructure it into a binary tree of nodes based on the precidence of
         # the "operators".
-        # TODO - I think maybe post_match should be run after the whole tree matches. If not, will this screw up caching?
-        def post_match
-          many_match = matches[0]
-          operands = many_match.matches
-          operators = many_match.delimiter_matches
-          # TODO - now! take many_match.matches and many_match.delimiter_matches, mishy-mashy, and make the super-tree!
-          self.class.operator_processor.generate_tree operands, operators, parent
+        # TODO - Should on_post_match be run after the whole tree matches? If not, will this screw up caching?
+        def post_match_processing
+          super
+          operator_processor.generate_tree operands, operators, parent
         end
       end
     end
@@ -96,12 +98,24 @@ class Parser
     end
 
     def ignore_whitespace(regexp = /\s*/)
-      @whitespace_regexp = /\A(#{regexp})?/
+      delimiter regexp
+    end
+
+    def delimiter(*pattern)
+      @delimiter = pattern
+    end
+
+    def delimiter_pattern
+      @delimiter_pattern ||= @delimiter && PatternElement.new(@delimiter, :parser_class => self, :delimiter => true)
     end
   end
 
-  def whitespace_regexp
-    self.class.whitespace_regexp || /\A/
+  def delimiter_pattern
+    self.class.delimiter_pattern
+  end
+
+  def rules
+    self.class.rules
   end
 
   #*********************************************
@@ -137,11 +151,10 @@ class Parser
     def match(*args) PatternElementHash.new.match(*args) end
     def match!(*args) PatternElementHash.new.dont.match(*args) end
 
-    def rewind_whitespace; PatternElementHash.new.rewind_whitespace end
-
     def dont; PatternElementHash.new.dont end
     def optionally; PatternElementHash.new.optionally end
     def could; PatternElementHash.new.could end
+    def custom_parser(&block); PatternElementHash.new.parser(lambda &block) end
   end
 
 
@@ -162,24 +175,12 @@ class Parser
   end
 
   def reset_parser_tracking
+    @matching_negative_depth = 0
     @parsing_did_not_match_entire_input = false
     @src = nil
     @failure_index = 0
     @expecting_list = {}
     @parse_cache = {}
-    @white_space_ranges = {}
-  end
-
-  # memoizing whitespace parser
-  def white_space_range(start)
-    @white_space_ranges[start]||=begin
-      # src should always be a string - unless this is called AFTER parsing is done. Currently this can happen with the way ManyNode handles .match_length and .next
-      # We should be able to just use:
-      #   src[start..-1].index whitespace_regexp
-      ((src||"")[start..-1]||"").index whitespace_regexp
-      r = $~.offset 0
-      start+r[0] .. start+r[1]-1
-    end
   end
 
   def cached(rule_class,offset)
@@ -195,6 +196,7 @@ class Parser
   end
 
   def log_parsing_failure(index,expecting)
+    puts "log_parsing_failure #{index} #{failure_index.inspect}"
     if matching_negative?
       # ignored
     elsif index>failure_index
@@ -210,35 +212,44 @@ class Parser
   def matching_negative
     @matching_negative_depth||=0
     @matching_negative_depth+=1
+    puts "matching_negative++ = #{@matching_negative_depth}"
   end
 
   def unmatching_negative
     @matching_negative_depth-=1
+    puts "matching_negative-- = #{@matching_negative_depth}"
   end
 
   def matching_negative?
     (@matching_negative_depth||0) > 0
   end
 
-  def parse(src,offset=0,rule=nil)
+  # parse a string, return the root node of the parse tree.
+  # If nil is returned, parsing failed. Call .parser_failure_info after failure for a human-readable description of the failure.
+  # src: the string to parse
+  # options:
+  #   offset: where to start in the string for parsing
+  #   rule: lets you specify the root rule for matching
+  #   partial_match: allow partial matching
+  def parse(src, options={})
+    offset = options[:offset] || 0
+    rule = options[:rule] || self.class.root_rule
     reset_parser_tracking
-    @start_time=Time.now
-    self.src=src
-    root_node=RootNode.new(self)
-    raise "No root rule defined." unless rule || self.class.root_rule
-    ret=self.class[rule||self.class.root_rule].parse(root_node)
-    unless rule
-      if ret
-        if ret.next<src.length # parse only succeeds if the whole input is matched
-          if ret.next >= @failure_index
-            @parsing_did_not_match_entire_input=true
-            @failure_index = ret.next
-            @failed_parse = ret
-          end
-          ret=nil
-        else
-          reset_parser_tracking
+    @start_time = Time.now
+    self.src = src
+    root_node = RootNode.new(self)
+    raise "No root rule defined." unless rule
+    ret = rules[rule].parse(root_node)
+    if ret
+      if ret.next<src.length && !options[:partial_match] # parse only succeeds if the whole input is matched
+        if ret.next >= @failure_index
+          @parsing_did_not_match_entire_input=true
+          @failure_index = ret.next
+          @failed_parse = ret
         end
+        ret=nil
+      else
+        reset_parser_tracking
       end
     end
     @end_time=Time.now
