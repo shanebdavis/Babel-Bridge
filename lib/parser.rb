@@ -97,8 +97,8 @@ class Parser
       @root_rule=rule
     end
 
-    def ignore_whitespace(regexp = /\s*/)
-      delimiter regexp
+    def ignore_whitespace
+      delimiter /\s*/
     end
 
     def delimiter(*pattern)
