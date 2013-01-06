@@ -30,6 +30,20 @@ class Node
   def on_matched
   end
 
+  def init_line_column
+    @line, @column = Tools.line_column(src, offset)
+  end
+
+  def line
+    init_line_column unless @line
+    @line
+  end
+
+  def column
+    init_line_column unless @column
+    @column
+  end
+
   def to_s
     text
   end

@@ -19,6 +19,14 @@ class Tools
       lines.collect {|line|line.join}.join("\n")
     end
 
+    # return the line and column of a given offset into this string
+    # line and column are 1-based
+    def line_column(string, offset)
+      return 1,1 if string.length==0 || offset==0
+      lines = (string[0..offset-1] + " ").split("\n")
+      return lines.length, lines[-1].length
+    end
+
     def symbols_to_strings(array)
       array.collect {|op| op.kind_of?(Symbol) ? op.to_s : op}
     end

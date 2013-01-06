@@ -324,7 +324,7 @@ ENDTXT
     return unless src
     verbose = options[:verbose]
     bracketing_lines=5
-    line,col=src.line_col(failure_index)
+    line,col = Tools.line_column(src, failure_index)
     ret=<<-ENDTXT
 Parsing error at line #{line} column #{col} offset #{failure_index}
 

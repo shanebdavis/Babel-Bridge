@@ -1,3 +1,45 @@
+2012-1-6 v0.5.0
+
+  Nodes now have #line and #column methods which return the line and column of the source for the start of that Node's match.
+
+2012-1-5 v0.5.0
+
+  Completely reworked ignore_whitespace - again.
+
+  Now there is a global "delimiter" pattern which is matched between every sub-pattern of every rule AND at the begining and end of the entire parse.
+
+  ignore_whitespace sets this delimiter to: /\s*/
+
+  You can set your own delimiter with the delimiter method:
+
+  class MyParser < BabelBridge::Parser
+    delimiter :hi, "there", "/[mM]ust/", "be between every sub-pattern!" # delimiter can take any pattern "rule" can
+    rule :hi, "hi"
+  end
+
+  You can override the delimiter pattern for a single rule to put in special code:
+
+  class MyParser < BabelBridge::Parser
+    ignore_whitespace
+
+    rule :root, many(:statement, ';')
+    rule :statement, many(:word, / +/), :delimiter => //  # disable the global delimiter
+  end
+
+  INCOMPATIBLE CHANGE: node.matches is no longer positional
+
+  node.matches now includes only things that were matched. This means conditional matches which do not match no longer add an EmptyNode to node.matches.
+
+  node.matches now contains all delimiter matches.
+
+  INCOMPATIBLE CHANGE: no more ManyNode
+
+  The many(rule) parser pattern no longer generates a special kind of parse-tree node. Instead it adds all its matches to the parent rule's .matches list. It also adds all the many-delimiters.
+
+  NOTE: 'delimiter' referes to the global delimiter pattern or the rule-local override. 'many-delimiter' refers to the optional, explicit delimiter specfied for the many-pattern.
+
+  NOTE: many(:rule,:many_delimiter) will effectively match: [rule]([delimiter][many_delimiter][delimiter][rule])*
+
 2012-12-31 v0.4.2
 
     Bugfix: parser_failure_info now works when nothing is matched
