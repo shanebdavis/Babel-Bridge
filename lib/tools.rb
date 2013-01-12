@@ -11,7 +11,7 @@ class Tools
       max_fields = lines.collect {|line| line.length}.max
       max_fields.times do |field|
         max_field_length = lines.collect {|line| (line[field]||"").length}.max
-        formatter = "%-#{max_field_length}s "
+        formatter = "%-#{max_field_length}s"
         lines.each_with_index do |line,i|
           lines[i][field] = formatter%line[field] if line[field]
         end

@@ -1,3 +1,12 @@
+2012-1-12 v0.5.0
+
+  added Parser.new :source_file => String
+  Sets parser.source_file value
+
+  Changed uniform_tabs to NOT include at least one space. If you want to ensure at least one space, you should add a space after your tab.
+
+  Fixed out-of-date tests in tools_spec.
+
 2012-1-6 v0.5.0
 
   Nodes now have #line and #column methods which return the line and column of the source for the start of that Node's match.

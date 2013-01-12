@@ -44,6 +44,10 @@ class Node
     @column
   end
 
+  def source_file
+    parser.source_file
+  end
+
   def to_s
     text
   end

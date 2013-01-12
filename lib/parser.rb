@@ -166,11 +166,14 @@ class Parser
   # parser active at a time
   attr_accessor :failure_index
   attr_accessor :expecting_list
-  attr_accessor :src
+  attr_accessor :src, :source_file
   attr_accessor :parse_cache
   attr_accessor :failed_parse # gets set if the entire input was not matched
 
-  def initialize
+  # options:
+  #     :source_file => string
+  def initialize(options={})
+    @source_file = options[:source_file]
     reset_parser_tracking
   end
 
