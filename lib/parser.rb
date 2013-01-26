@@ -234,11 +234,9 @@ class Parser
   # If nil is returned, parsing failed. Call .parser_failure_info after failure for a human-readable description of the failure.
   # src: the string to parse
   # options:
-  #   offset: where to start in the string for parsing
   #   rule: lets you specify the root rule for matching
   #   partial_match: allow partial matching
   def parse(src, options={})
-    offset = options[:offset] || 0
     rule = options[:rule] || self.class.root_rule
     reset_parser_tracking
     @start_time = Time.now
