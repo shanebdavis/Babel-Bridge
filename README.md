@@ -11,20 +11,26 @@ require "babel_bridge"
 
 class MyParser < BabelBridge::Parser
 
-  # match "foo" optionally followed by the :bar
+  # foo rule: match "foo" optionally followed by the :bar rule
   rule :foo, "foo", :bar?
 
-  # match "bar"
+  # bar rule: match "bar"
   rule :bar, "bar"
 end
 
-MyParser.new.parse("foo") # matches "foo"
+MyParser.new.parse "foo" # matches "foo"
 #  => FooNode1 > "foo"
 
-MyParser.new.parse("foobar") # matches "foobar"
+MyParser.new.parse "foobar" # matches "foobar"
 # => FooNode1
 #  "foo"
 #  BarNode1 > "bar"
+
+MyParser.new.parse "fribar" # fails to match
+# => nil
+
+MyParser.new.parse "foobarbar" # fails to match entire input
+# => nil
 ```
 
 Babel Bridge is a parser-generator for Parsing Expression Grammars
