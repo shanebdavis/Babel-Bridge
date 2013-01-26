@@ -21,6 +21,7 @@ describe "advanced parsing" do
     end
 
     test_parse("END this is in the middle END")
+    test_parse("FROG this is in the middle FROG")
     test_parse("END this is in END the middle END",:partial_match => true).text.should == "END this is in END"
     test_parse "END this is in the middle EN", :should_fail_at => 0
     test_parse "    END this is in the middle END", :should_fail_at => 0

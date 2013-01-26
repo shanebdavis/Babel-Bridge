@@ -147,7 +147,6 @@ class Parser
   class <<self
     def many(m,delimiter=nil) PatternElementHash.new.match.many(m).delimiter(delimiter) end
     def many?(m,delimiter=nil) PatternElementHash.new.optionally.match.many(m).delimiter(delimiter) end
-    def many!(m,delimiter=nil) PatternElementHash.new.dont.match.many(m).delimiter(delimiter) end
 
     def match?(*args) PatternElementHash.new.optionally.match(*args) end
     def match(*args) PatternElementHash.new.match(*args) end

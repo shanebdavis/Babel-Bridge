@@ -131,7 +131,7 @@ You can also add new rules outside the class definition by:
 Patterns
 --------
 
-Patterns are an list of pattern elements, matched in order:
+Patterns are a list of pattern elements, matched in order:
 
 Example:
 
@@ -144,56 +144,74 @@ Pattern Elements
 
 Pattern elements are basic-pattern-element or extended-pattern-element ( expressed as a hash). Internally, they are "compiled" into instances of PatternElement with optimized lambda functions for parsing.
 
+## Basic Pattern Elements (basic_element)
+
 ``` ruby
-  # basic-pattern-element:
     :my_rule      # matches the Rule named :my_rule
     :my_rule?     # optional: optionally matches Rule :my_rule
     :my_rule!     # negative: success only if it DOESN'T match Rule :my_rule
     "string"      # matches the string exactly
     /regex/       # matches the regex exactly
-    true          # always matches the empty string (useful as a no-op if you don't want to change the length of your pattern)
+```
 
-  # extended-pattern-element:
+## Advanced Pattern Elements
 
-    # A Hash with :match or :parser set and zero or more additional options:
+``` ruby
 
-    :match => basic_element
-    #  provide one of the basic elements above
-    #  NOTE: Optional and Negative options are preserved, but they are overridden by any such directives in the Hash-Element
+    # success if basic_element could be matched, but the input is not consumed
+    could.match(basic_element)
 
-    :parser => lambda {|parent_node| ... }
-    #  Custom lambda function for parsing the input.
-    #  Return "nil" if could not find a parse, otherwise return a new Node, typically the TerminalNode
-    #  Make sure the returned node.next value is the index where you wish parsing to resume
+    # negative (two equivelent methods)
+    dont.match(basic_element)
+    match!(basic_element)
 
-    :as => :my_name
-    #  Assign a name to an element for later programatic reference:
-    #    rule_variant_node_class_instance.my_name
+    # optional (two equivelent methods)
+    optionally.match(basic_element)
+    match?(basic_element)
 
-    :optionally => true
-    #  PEG equivelent: term?
-    #  turn this into an optional-match element
-    #  optional elements cannot be negative
+    # match 1 or more
+    many(basic_element)
 
-    :dont => true
-    #  PEG equivalent: !term
-    #  turn this into a Negative-match element
-    #  negative elements cannot be optional
+    # match 1 or more of one basic_element delimited by another basic_element)
+    many(basic_element, delimiter_basic_element)
 
-    :could => true
-    #  PEG equivalent: &term
+    # match 0 or more
+    many?(basic_element)
 
-    :many => PatternElement
-    #  PEG equivalent: term+ (for "term*", use optionally + many)
-    #  accept 1 or more reptitions of this element delimited by PatternElement
-    #  NOTE: PatternElement can be "true" for no delimiter (since "true" matches the empty string)
+```
 
-    :delimiter => PatternElement
-    #  pattern to match between the :many patterns
+## Custom Pattern Element Parser
 
-    :post_delimiter => true           # use the :delimiter PatternElement for final match
-    :post_delimiter => PatternElement # use custom post_delimiter PatternElement for final match
-    #  if true, then poly will match a delimiter after the last poly-match
+Custom pattern elements are not generally needed, but for certain patterns, particularly context sensative ones, we provide a way to do it.
+
+``` ruby
+class MyParser < BabelBridge::Parser
+
+  # custom parser to match an all upper-case word followed by any number of characters before that word is repeated
+  rule :foo, (custom_parser do |parent_node|
+    offset = parent_node.next
+    src = parent_node.src
+
+    # Note, the \A anchors the search at the beginning of the string
+    if src[offset..-1].index(/\A[A-Z]+/) == 0
+      endpattern=$~.to_s
+      if i = src.index(endpattern, offset + endpattern.length)
+        range = offset..(i + endpattern.length)
+        BabelBridge::TerminalNode.new(parent_node, range, "endpattern")
+      end
+    end
+  end)
+end
+
+parser = MyParser.new
+parser.parse "END this is in the middle END"
+# => FooNode1 > "END this is in the middle END"
+
+parser.parse "DRUID this is in the middle DRUID"
+# => FooNode1 > "DRUID this is in the middle DRUID"
+
+parser.parse "DRUID this is in the middle DRUI"
+# => nil
 ```
 
 Structure
@@ -202,5 +220,4 @@ Structure
 * Each Rule defines a subclass of Node
 * Each RuleVariant defines a subclass of the parent Rule's node-class
 
-  Therefor you can easily define code to be shared across all variants as well
-  as define code specific to one variant.
+Therefor you can easily define code to be shared across all variants as well as define code specific to one variant.

@@ -11,10 +11,6 @@ describe "basic parsing" do
     BabelBridge::Parser.many?(";").hash.should == {:many=>";", :optionally=>true, :match=>true}
   end
 
-  it "test_many!" do
-    BabelBridge::Parser.many!(";").hash.should == {:many=>";", :dont=>true, :match=>true}
-  end
-
   it "test_match" do
     BabelBridge::Parser.match(";").hash.should == {:match=>";"}
   end
