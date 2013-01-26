@@ -16,7 +16,7 @@ class Tools
           lines[i][field] = formatter%line[field] if line[field]
         end
       end
-      lines.collect {|line|line.join}.join("\n")
+      lines.collect {|line|line.join.rstrip}.join("\n")
     end
 
     # return the line and column of a given offset into this string

@@ -1,3 +1,5 @@
+require 'pathname'
+
 module BabelBridge
 # primary object used by the client
 # Used to generate the grammer with .rule methods
@@ -169,6 +171,10 @@ class Parser
   attr_accessor :src, :source_file
   attr_accessor :parse_cache
   attr_accessor :failed_parse # gets set if the entire input was not matched
+
+  def relative_source_file
+    source_file && @relative_source_file ||= Pathname.new(File.expand_path(source_file)).relative_path_from(Pathname.getwd)
+  end
 
   # options:
   #     :source_file => string

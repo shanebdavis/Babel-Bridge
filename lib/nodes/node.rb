@@ -44,9 +44,8 @@ class Node
     @column
   end
 
-  def source_file
-    parser.source_file
-  end
+  def source_file; parser.source_file; end
+  def relative_source_file; parser.relative_source_file; end
 
   def to_s
     text
