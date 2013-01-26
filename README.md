@@ -19,7 +19,7 @@ class MyParser < BabelBridge::Parser
 end
 
 # create one more instances of your parser
-parser = parser
+parser = MyParser.new
 
 parser.parse "foo" # matches "foo"
 #  => FooNode1 > "foo"
