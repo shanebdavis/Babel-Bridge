@@ -41,50 +41,50 @@ Features
 
 ``` ruby
 
-  # returns the BabelBridge::Rule instance for that rule
-  rule = MyParser[:foo]
-  # => rule :foo, "foo", :bar?
+# returns the BabelBridge::Rule instance for that rule
+rule = MyParser[:foo]
+# => rule :foo, "foo", :bar?
 
-  # nice human-readable view of the rule with extra info:
-  rule.to_s
-  # rule :foo, node_class: MyParser::FooNode
-  #         variant_class: MyParser::FooNode1, pattern: "foo", :bar?
+# nice human-readable view of the rule with extra info:
+rule.to_s
+# rule :foo, node_class: MyParser::FooNode
+#         variant_class: MyParser::FooNode1, pattern: "foo", :bar?
 
-  # returns the code necessary for generating the rule and all its variants
-  # (minus any class_eval code)
-  rule.inspect
-  # => rule :foo, "foo", :bar?
+# returns the code necessary for generating the rule and all its variants
+# (minus any class_eval code)
+rule.inspect
+# => rule :foo, "foo", :bar?
 
-  # returns the Node class for a rule
-  MyParser.node_class(:foo)
-  # => MyParser::FooNode
+# returns the Node class for a rule
+MyParser.node_class(:foo)
+# => MyParser::FooNode
 
-  MyParser.node_class(:foo) do
-    # class_eval inside the rule's Node-class
-  end
+MyParser.node_class(:foo) do
+  # class_eval inside the rule's Node-class
+end
 
-  # create one more instances of your parser
-  parser = MyParser.new
+# create one more instances of your parser
+parser = MyParser.new
 
-  # parses Text starting with the MyParser.root_rule
-  # The root_rule is defined automatically by the first rule defined, but can be set by:
-  #   MyParser.root_rule=v
-  # where v is the symbol name of the rule or the actual rule object from MyParser[rule]
-  text = "foobar"
-  parser.parse(text)
+# parses Text starting with the MyParser.root_rule
+# The root_rule is defined automatically by the first rule defined, but can be set by:
+#   MyParser.root_rule=v
+# where v is the symbol name of the rule or the actual rule object from MyParser[rule]
+text = "foobar"
+parser.parse(text)
 
-  # do a one-time parse with :bar set as the root-rule
-  text = "bar"
-  parser.parse(text, :rule => :bar)
+# do a one-time parse with :bar set as the root-rule
+text = "bar"
+parser.parse(text, :rule => :bar)
 
-  # relax requirement to match entire input
-  parser.parse "foobar and then something", :partial_match => true
+# relax requirement to match entire input
+parser.parse "foobar and then something", :partial_match => true
 
-  # parse failure
-  parser.parse "foo is not immediately followed by bar"
+# parse failure
+parser.parse "foo is not immediately followed by bar"
 
-  # human readable parser failure info
-  puts parser.parser_failure_info
+# human readable parser failure info
+puts parser.parser_failure_info
 ```
 
 Parser failure info output:
@@ -112,9 +112,9 @@ Defining Rules
 Inside the parser class, a rule is defined as follows:
 
 ``` ruby
-  class MyParser < BabelBridge::Parser
-    rule :rule_name, pattern
-  end
+class MyParser < BabelBridge::Parser
+  rule :rule_name, pattern
+end
 ```
 
 Where:
@@ -125,7 +125,7 @@ Where:
 You can also add new rules outside the class definition by:
 
 ``` ruby
-  MyParser.rule :rule_name, pattern
+MyParser.rule :rule_name, pattern
 ```
 
 Patterns
@@ -136,7 +136,7 @@ Patterns are a list of pattern elements, matched in order:
 Example:
 
 ``` ruby
-  rule :my_rule, "match", "this", "in", "order"  # matches "matchthisinorder"
+rule :my_rule, "match", "this", "in", "order"  # matches "matchthisinorder"
 ```
 
 Pattern Elements
@@ -147,36 +147,36 @@ Pattern elements are basic-pattern-element or extended-pattern-element ( express
 ## Basic Pattern Elements (basic_element)
 
 ``` ruby
-    :my_rule      # matches the Rule named :my_rule
-    :my_rule?     # optional: optionally matches Rule :my_rule
-    :my_rule!     # negative: success only if it DOESN'T match Rule :my_rule
-    "string"      # matches the string exactly
-    /regex/       # matches the regex exactly
+:my_rule      # matches the Rule named :my_rule
+:my_rule?     # optional: optionally matches Rule :my_rule
+:my_rule!     # negative: success only if it DOESN'T match Rule :my_rule
+"string"      # matches the string exactly
+/regex/       # matches the regex exactly
 ```
 
 ## Advanced Pattern Elements
 
 ``` ruby
 
-    # success if basic_element could be matched, but the input is not consumed
-    could.match(basic_element)
+# success if basic_element could be matched, but the input is not consumed
+could.match(basic_element)
 
-    # negative (two equivelent methods)
-    dont.match(basic_element)
-    match!(basic_element)
+# negative (two equivelent methods)
+dont.match(basic_element)
+match!(basic_element)
 
-    # optional (two equivelent methods)
-    optionally.match(basic_element)
-    match?(basic_element)
+# optional (two equivelent methods)
+optionally.match(basic_element)
+match?(basic_element)
 
-    # match 1 or more
-    many(basic_element)
+# match 1 or more
+many(basic_element)
 
-    # match 1 or more of one basic_element delimited by another basic_element)
-    many(basic_element, delimiter_basic_element)
+# match 1 or more of one basic_element delimited by another basic_element)
+many(basic_element, delimiter_basic_element)
 
-    # match 0 or more
-    many?(basic_element)
+# match 0 or more
+many?(basic_element)
 
 ```
 
