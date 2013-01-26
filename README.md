@@ -18,18 +18,21 @@ class MyParser < BabelBridge::Parser
   rule :bar, "bar"
 end
 
-MyParser.new.parse "foo" # matches "foo"
+# create one more instances of your parser
+parser = parser
+
+parser.parse "foo" # matches "foo"
 #  => FooNode1 > "foo"
 
-MyParser.new.parse "foobar" # matches "foobar"
+parser.parse "foobar" # matches "foobar"
 # => FooNode1
 #  "foo"
 #  BarNode1 > "bar"
 
-MyParser.new.parse "fribar" # fails to match
+parser.parse "fribar" # fails to match
 # => nil
 
-MyParser.new.parse "foobarbar" # fails to match entire input
+parser.parse "foobarbar" # fails to match entire input
 # => nil
 ```
 
@@ -68,9 +71,6 @@ MyParser.node_class(:foo)
 MyParser.node_class(:foo) do
   # class_eval inside the rule's Node-class
 end
-
-# create one more instances of your parser
-parser = MyParser.new
 
 # parses Text starting with the MyParser.root_rule
 # The root_rule is defined automatically by the first rule defined, but can be set by:
@@ -209,7 +209,7 @@ class MyParser < BabelBridge::Parser
   end)
 end
 
-parser = MyParser.new
+parser = parser
 parser.parse "END this is in the middle END"
 # => FooNode1 > "END this is in the middle END"
 
