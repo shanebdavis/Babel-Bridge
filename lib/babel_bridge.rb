@@ -16,5 +16,5 @@ http://babel-bridge.rubyforge.org/
   rule
   parser
 }.each do |file|
-  require File.join(File.dirname(__FILE__),file)
+  require File.join(File.dirname(__FILE__),"babel_bridge",file)
 end

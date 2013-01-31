@@ -1,4 +1,6 @@
-require File.join(File.dirname(__FILE__),"lib/babel_bridge.rb")
+lib = File.expand_path('../lib', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+require 'babel_bridge/version'
 
 $gemspec = Gem::Specification.new do |gem|
   gem.name = "babel_bridge"
@@ -15,8 +17,10 @@ Babel Bridge is an object oriented parser generator for parsing expression gramm
 Generate memoizing packrat parsers 100% in Ruby code with a simple embedded DSL.
 DESCRIPTION
 
-  gem.files = ["LICENSE", "README", "Rakefile", "babel_bridge.gemspec", "{test,spec,lib,doc,examples}/**/*"].map{|p| Dir[p]}.flatten
-  gem.has_rdoc = false
+  gem.files         = `git ls-files`.split($/)
+  gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
+  gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
+  gem.require_paths = ["lib"]
 
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rspec'

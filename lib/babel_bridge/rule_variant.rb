@@ -37,10 +37,6 @@ class RuleVariant
     @pattern_elements||=pattern.collect { |match| [PatternElement.new(match, :rule_variant => self, :pattern_element => true), delimiter_pattern] }.flatten[0..-2]
   end
 
-  def parse_element(element_parser, node)
-    node.add_match element_parser.parse(node), element_parser.name
-  end
-
   # returns a Node object if it matches, nil otherwise
   def parse(parent_node)
     #return parse_nongreedy_optional(src,offset,parent_node) # nongreedy optionals break standard PEG

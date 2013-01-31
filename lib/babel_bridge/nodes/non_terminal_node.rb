@@ -36,13 +36,5 @@ class NonTerminalNode < Node
       update_match_length
     end
   end
-
-  def [](i)
-    matches[i]
-  end
-
-  def each(&block)
-    matches.each(&block)
-  end
 end
 end

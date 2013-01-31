@@ -88,7 +88,6 @@ class PatternElement
     self.match = match
     match = match[0] if match.kind_of?(Array) && match.length == 1
     case match
-    when TrueClass then init_true
     when String then    init_string match
     when Regexp then    init_regex match
     when Symbol then    init_rule match
@@ -96,11 +95,6 @@ class PatternElement
     when Array then     init_array match
     else                raise "invalid pattern type: #{match.inspect}"
     end
-  end
-
-  # "true" parser always matches the empty string
-  def init_true
-    self.parser=lambda {|parent_node| EmptyNode.new(parent_node)}
   end
 
   # initialize PatternElement as a parser that matches exactly the string specified

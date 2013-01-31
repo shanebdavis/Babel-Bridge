@@ -267,14 +267,6 @@ class Parser
     @end_time-@start_time
   end
 
-  def parse_and_puts_errors(src,out=$stdout)
-    ret=parse(src)
-    unless ret
-      out.puts parser_failure_info
-    end
-    ret
-  end
-
   # options[:verbose] => false
   def node_list_string(node_list,common_root=[],options={})
     return unless node_list

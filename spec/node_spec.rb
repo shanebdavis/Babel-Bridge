@@ -28,7 +28,7 @@ describe "basic parsing" do
     test_parse("123").number.should == 123
   end
 
-  def test_adder
+  it "test_adder" do
     new_parser do
       rule :adder, :number, "+", :number do
         def answer;
@@ -41,10 +41,10 @@ describe "basic parsing" do
     end
 
 
-    test_parser("123+654").answer.should == 777
+    test_parse("123+654").answer.should == 777
   end
 
-  def test_adder_multiplier
+  it "test_adder_multiplier" do
     new_parser do
 
       rule :adder, :multiplier, "+", :adder do
