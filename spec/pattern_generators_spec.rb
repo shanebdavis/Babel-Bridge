@@ -34,4 +34,8 @@ describe "basic parsing" do
   it "test_could" do
     BabelBridge::Parser.could.match(";").hash.should == {:match=>";",:could=>true}
   end
+
+  it "test_any" do
+    BabelBridge::Parser.any(";").hash.should == {:any=>[";"]}
+  end
 end

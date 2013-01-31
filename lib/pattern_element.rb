@@ -5,24 +5,6 @@ http://babel-bridge.rubyforge.org/
 =end
 
 module BabelBridge
-# hash which can be used declaratively
-class PatternElementHash
-  attr_accessor :hash
-
-  def initialize
-    @hash = {}
-  end
-
-  def [](key) @hash[key] end
-  def []=(key,value) @hash[key]=value end
-
-  def method_missing(method_name, *args)  #method_name is a symbol
-    return self if args.length==1 && !args[0] # if nil is provided, don't set anything
-    raise "More than one argument is not supported. #{self.class}##{method_name} args=#{args.inspect}" if args.length > 1
-    @hash[method_name] = args[0] || true # on the other hand, if no args are provided, assume true
-    self
-  end
-end
 
 # PatternElement provides optimized parsing for each Element of a pattern
 # PatternElement provides all the logic for parsing:
@@ -90,7 +72,7 @@ class PatternElement
 
     if !match && (terminal || negative)
       # log failures on Terminal patterns for debug output if overall parse fails
-      parent_node.parser.log_parsing_failure parent_node.next, :pattern => self.match, :node => parent_node
+      parent_node.parser.log_parsing_failure parent_node.next, :pattern => self.to_s, :node => parent_node
     end
 
     match.delimiter = delimiter if match
@@ -111,6 +93,7 @@ class PatternElement
     when Regexp then    init_regex match
     when Symbol then    init_rule match
     when PatternElementHash then      init_hash match
+    when Array then     init_array match
     else                raise "invalid pattern type: #{match.inspect}"
     end
   end
@@ -155,6 +138,29 @@ class PatternElement
     end
   end
 
+  def init_any(patterns)
+    patterns = patterns.collect {|p| PatternElement.new(p,@init_options)}
+    self.parser = lambda do |parent_node|
+      patterns.each do |p|
+        node = p.parse(parent_node)
+        return node if node
+      end
+      nil
+    end
+  end
+
+  def init_array(patterns)
+    patterns = patterns.collect {|p| PatternElement.new(p,@init_options)}
+    self.parser = lambda do |parent_node|
+      parent_node.attempt_match do
+        patterns.each do |p|
+          return nil unless parent_node.match p
+        end
+      end
+      parent_node
+    end
+  end
+
   # initialize the PatternElement from hashed parameters
   def init_hash(hash)
     if hash[:parser]
@@ -163,6 +169,8 @@ class PatternElement
       init_many hash
     elsif hash[:match]
       init hash[:match]
+    elsif hash[:any]
+      init_any hash[:any]
     else
       raise "extended-options patterns (specified by a hash) must have either :parser=> or a :match=> set"
     end

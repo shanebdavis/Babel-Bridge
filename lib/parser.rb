@@ -145,12 +145,16 @@ class Parser
   #
   #*********************************************
   class <<self
-    def many(m,delimiter=nil) PatternElementHash.new.match.many(m).delimiter(delimiter) end
+    def many(m,delimiter=nil)  PatternElementHash.new.match.many(m).delimiter(delimiter) end
     def many?(m,delimiter=nil) PatternElementHash.new.optionally.match.many(m).delimiter(delimiter) end
 
+    def match(*args)  PatternElementHash.new.match(*args) end
     def match?(*args) PatternElementHash.new.optionally.match(*args) end
-    def match(*args) PatternElementHash.new.match(*args) end
     def match!(*args) PatternElementHash.new.dont.match(*args) end
+
+    def any(*args) PatternElementHash.new.any(args) end
+    def any?(*args) PatternElementHash.new.optionally.any(args) end
+    def any!(*args) PatternElementHash.new.dont.any(args) end
 
     def dont; PatternElementHash.new.dont end
     def optionally; PatternElementHash.new.optionally end

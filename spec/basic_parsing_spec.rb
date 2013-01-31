@@ -91,4 +91,47 @@ describe "basic parsing" do
     test_parse "boO"
   end
 
+  it "any() pattern should work" do
+    new_parser do
+      rule :foo, any("foo","bar")
+    end
+
+    test_parse "bar"
+    test_parse "foo"
+    test_parse "boo", :should_fail_at => 0
+  end
+
+  it "any!() should work" do
+    new_parser do
+      rule :foo, any!("foo","bar"), /[a-z]+/
+    end
+
+    test_parse "bar", :should_fail_at => 0
+    test_parse "foo", :should_fail_at => 0
+    test_parse "boo"
+  end
+
+  it "any?() should work" do
+    new_parser do
+      rule :foo, any?("foo","bar"), "baz"
+    end
+
+    test_parse "barbaz"
+    test_parse "foobaz"
+    test_parse "baz"
+    test_parse "foo", :should_fail_at => 3
+  end
+
+  it "[] (match in order) pattern should work" do
+    new_parser do
+      rule :foo, ["foo", "bar"], "baz"
+      rule :foo, "foo", "boo"
+    end
+
+    test_parse "foobarbaz"
+    test_parse "foo", :should_fail_at => 3
+    test_parse "foobar", :should_fail_at => 6
+    test_parse "fooboo"
+  end
+
 end
