@@ -163,24 +163,36 @@ Pattern elements are basic-pattern-element or extended-pattern-element ( express
 ``` ruby
 
 # success if basic_element could be matched, but the input is not consumed
-could.match(basic_element)
+could.match(pattern_element)
 
 # negative (two equivelent methods)
-dont.match(basic_element)
-match!(basic_element)
+dont.match(pattern_element)
+match!(pattern_element)
 
 # optional (two equivelent methods)
-optionally.match(basic_element)
-match?(basic_element)
+optionally.match(pattern_element)
+match?(pattern_element)
 
 # match 1 or more
-many(basic_element)
+many(pattern_element)
 
 # match 1 or more of one basic_element delimited by another basic_element)
-many(basic_element, delimiter_basic_element)
+many(pattern_element, delimiter_pattern_element)
 
 # match 0 or more
-many?(basic_element)
+many?(pattern_element)
+
+# An array of patterns tells BB to match those patterns in order ("and" matching)
+[pattern_element_a, pattern_element_b, pattern_element_c, ...]
+
+# match any one of the listed patterns ("or" matching)
+any(pattern_element_a, pattern_element_b, pattern_element_c, ...)
+
+# optionally match any of the patterns
+any?(pattern_element_a, pattern_element_b, pattern_element_c, ...)
+
+# don't match any of the patterns
+any!(pattern_element_a, pattern_element_b, pattern_element_c, ...)
 
 ```
 
