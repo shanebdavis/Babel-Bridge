@@ -1,6 +1,6 @@
 # basic parser that accepts only legal JSON
 # parse-tree-nodes support "#evaluate" which returns the ruby-equivalent data-structure
-require File.join(File.dirname(__FILE__),"..","..","lib","babel_bridge")
+require "babel_bridge"
 
 class JsonParser < BabelBridge::Parser
   ignore_whitespace
@@ -8,7 +8,7 @@ class JsonParser < BabelBridge::Parser
   rule :document, any(:object, :array)
 
   rule :array, '[', many?(:value, ','), ']' do
-    def evaluate; value ? value.collect {|v| v.evaluate} : []; end
+    def evaluate; value.collect {|v| v.evaluate}; end
   end
 
   rule :object, '{', many?(:pair,  ','), '}' do

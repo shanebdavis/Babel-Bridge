@@ -1,6 +1,5 @@
 # basic parser that accepts only legal JSON
-
-require File.join(File.dirname(__FILE__),"..","..","lib","babel_bridge")
+require "babel_bridge"
 
 class JsonParser < BabelBridge::Parser
   ignore_whitespace
