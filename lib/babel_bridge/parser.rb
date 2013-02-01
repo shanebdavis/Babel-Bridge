@@ -316,7 +316,7 @@ Parse path at failure:
 Expecting#{expecting_list.length>1 ? ' one of' : ''}:
 #{Tools.uniform_tabs(Tools.indent(expecting_list.values.collect do |a|
     list=node_list_string(nodes_interesting_parse_path(a[:node]),common_root,options)
-    "#{a[:pattern].inspect}\t #{list}"
+    "#{a[:pattern]}\t #{list}"
   end.sort.join("\n"),"  "))}
 ENDTXT
   end
