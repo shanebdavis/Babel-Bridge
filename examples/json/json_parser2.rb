@@ -8,20 +8,16 @@ class JsonParser < BabelBridge::Parser
   rule :document, any(:object, :array)
 
   rule :array, '[', many?(:value, ','), ']' do
-    def evaluate; value.collect {|v| v.evaluate}; end
+    def evaluate; value.collect {|v| v.evaluate} end
   end
 
   rule :object, '{', many?(:pair,  ','), '}' do
-    def evaluate
-      h = {}
-      pair.each do |p|
-        h[eval(p.string.to_s)] = p.value.evaluate
-      end
-      h
-    end
+    def evaluate; Hash[ pair.collect {|p| p.evaluate } ] end
   end
 
-  rule :pair, :string, ':', :value
+  rule :pair, :string, ':', :value do
+    def evaluate; [ eval(string.to_s), value.evaluate ] end
+  end
 
   rule :value, any(:object, :array, :ruby_compatible_literal, :null)
 
