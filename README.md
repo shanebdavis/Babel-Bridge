@@ -10,6 +10,7 @@ Goals
 * Productivity through Simplicity and Understandability first
 * Performance second
 
+
 Example
 -------
 
@@ -42,6 +43,10 @@ parser.parse "fribar" # fails to match
 parser.parse "foobarbar" # fails to match entire input
 # => nil
 ```
+
+More elaborate examples:
+* [Parsing JSON the Not-So-Hard Way](http://www.essenceandartifact.com/2013/01/parsing-json-not-so-hard-way.html)
+* [How to Create a Turing Complete Programming Language in 40 Minutes](http://www.essenceandartifact.com/2012/09/how-to-create-turing-complete.html)
 
 Features
 --------
