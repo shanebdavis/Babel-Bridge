@@ -88,7 +88,7 @@ class Node
   # info methods
   #********************
   alias :next :offset_after_match
-  def text; src[match_range] end  # the substring in src matched
+  def text; match_length == 0 ? "" : src[match_range] end  # the substring in src matched
 
   # length returns the number of sub-nodes
   def length

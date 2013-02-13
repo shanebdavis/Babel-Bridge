@@ -52,4 +52,23 @@ describe BabelBridge do
     test_parse("barbar").bar.class.should == BabelBridge::MultiMatchesArray
   end
 
+  it "if a name can be optionally matched more than one time, it should always be an array of matchs" do
+    new_parser do
+      rule :file, :space, :constant
+      rule :space, /\s*/
+      rule :constant, /[A-Z][0-9_a-zA-Z]*/
+    end
+
+    p = test_parse("This")
+
+    p.constant.match_length.should == 4
+    p.space.match_length.should == 0
+
+    p.constant.match_range.should == (0..3)
+    p.space.match_range.should == (0..-1)
+
+    p.constant.to_s.should == "This"
+    p.space.to_s.should == ""
+  end
+
 end

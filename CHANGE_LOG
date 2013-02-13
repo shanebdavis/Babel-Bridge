@@ -1,3 +1,7 @@
+2013-2-12 v0.5.3
+
+  fixed bug with 0-length matchs' to_s returning non-zero-length strings
+
 2012-1-25 v0.5.1
 
   added parser.relative_source_file
