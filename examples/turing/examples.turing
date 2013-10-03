@@ -1,0 +1,33 @@
+# This language doesn't support comments.
+# When trying these examples out, remeber not to copy and paste the comments.
+
+# calculate 2^[0]
+[0]=10;[1]=1;while [0]>0 do [0]=[0]-1;[1]=[1]*2 end;[1]
+
+# return the [0]th number in the fibonancci sequence:
+# [0] == fib number to output
+# [1] == current fib number
+# [2] == fib[[1]]
+# [3] == fib[[1]-1]
+# [4] == temp
+[0]=5;[1]=2;[2]=[3]=1;while [1]<[0] do [4]=[2]+[3];[2]=[3];[3]=[4];[1]=[1]+1 end;[3]
+
+# simulate a turing machine
+# [0] == current state
+# [1] == head position
+# [2] == number of symbols this machine recognizes
+# [3] == current state + read value offset
+# [state*[2]*3+10] == write at the current head position(nil or any number)
+# [state*[2]*3+11] == move head amount (-1, 0, 1)
+# [state*[2]*3+12] == next-state (states starting from 0)
+# [10000+] == tape - pick a large enough constant that the turing machine doesn't corrupt your states
+# -1 is the stop-state
+# Assumes you initalized your turing program for all your states.
+[0]=-1;
+[1]=10000;
+while [0]>=0 do
+  [3] = 10 + ([0]*[2]+[[1]]) * 3;
+  [[1]] = [[3]];
+  [1] = [1] + [[3]+1];
+  [0] = [[3]+2];
+end
