@@ -76,7 +76,7 @@ class RuleNode < NonTerminalNode
     nil
   end
 
-  def respond_to?(method_name)
+  def respond_to?(method_name, include_all = false)
     super ||
     matches_by_name[method_name] ||
     forward_to(method_name)
