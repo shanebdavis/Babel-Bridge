@@ -3,6 +3,8 @@ Summary
 
 Babel Bridge let's you generate parsers 100% in Ruby code. It is a memoizing Parsing Expression Grammar (PEG) generator like Treetop, but it doesn't require special file-types or new syntax. Overall focus is on simplicity and usability over performance.
 
+* [Babel-Bridge Ruby Homepage](http://shanebdavis.github.io/Babel-Bridge/)
+
 Goals
 -----
 
