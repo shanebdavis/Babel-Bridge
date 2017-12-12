@@ -1,0 +1,109 @@
+<html>
+<head>
+  <link href="./screen.css" rel="stylesheet" type="text/css" />
+  <title>Babel-Bridge: Ruby Parsing Expression Grammar Generator</title>
+</head>
+<body>
+<div class="content">
+<div class="babel_image">Athanasius Kircher, The Tower of Babel, 1679.</div>
+<div class="title_window">
+<h1 class="title">Babel Bridge</h1>
+<div class="subtitle"><a href="http://en.wikipedia.org/wiki/Parsing_expression_grammar">Memoizing Parsing Expression Grammar</a> generator in Ruby</div>
+<div class="nav">
+  <a href="index.html" class="selected">home</a>
+  <a href="parsing.html">parsing</a>
+  <a href="parse_tree.html">parse tree</a>
+</div>
+<p>Create parsers with ease 100% in Ruby.</p>
+<h1>Install</h1>
+It's a gem, installed like any other:
+<pre><code>sudo gem install babel_bridge</code></pre>
+</div>
+
+<h1>How to Create a Turing-Complete Language in 40 minutes</h1>
+<p>Watch this video to see how easy it is to make cool things happen with Babel-Bridge.
+<p style='text-align:center;'><iframe width="640" height="480" src="http://www.youtube.com/embed/_Uoyufkb5lk" frameborder="0" allowfullscreen></iframe>
+
+
+<h1>A Quick Example</h1>
+<p>To create a new parser, declare a new class and inherit from <code>BabelBridge::Parser</code>. Inside your parser class, list all your parsing rules.<p>
+<p>To use your parser, create a new instance and call <code>parse</code>, passing in the string you wish to parse.</p>
+
+<pre><code><keyword>require</keyword> <string>"babel_bridge"</string>
+
+<keyword>class</keyword> <identifier>MyParser</identifier> <symbol><</symbol> <identifier>BabelBridge</identifier><symbol>:</symbol><string>:Parser</string>
+
+  <identifier>rule</identifier> <string>:foo</string><symbol>,</symbol> <string>"foo"</string><symbol>,</symbol> <string>:bar?</string>
+  <comment># rule named :foo</comment>
+  <comment># match the string "foo"</comment>
+  <comment># optionally followed by the rule :bar</comment>
+
+  <identifier>rule</identifier> <string>:bar</string><symbol>,</symbol> <string>"bar"</string>
+  <comment># rule named :bar</comment>
+  <comment># match "bar"</comment>
+
+<keyword>end</keyword>
+
+<identifier>parser</identifier> <symbol>=</symbol> <identifier>MyParser</identifier><symbol>.</symbol><identifier>new</identifier>
+<identifier>parser</identifier><symbol>.</symbol><identifier>parse</identifier> <string>"foo"</string>     <comment># matches "foo"</comment>
+<identifier>parser</identifier><symbol>.</symbol><identifier>parse</identifier> <string>"foobar"</string>  <comment># matches "foobar"</comment></code></pre>
+
+<h1>Features</h1>
+<ul class="bullets">
+  <li>Full parsing expression grammer support with memoizing
+  <li>Full Ruby regular expressions support for terminals
+  <li>Simple, convention-based parse-tree class structure
+  <li>Human-readable parse-tree dumps
+  <li>Detailed information about parsing failures
+  <li>Custom sub-parser hooks
+  <li>Shortcuts for matching lists with delimiters
+</ul>
+<h1>Goals</h1>
+<p>I was inspired by <a href="http://treetop.rubyforge.org/">Treetop's</a> use of parsing expression grammars in Ruby.
+PEGs let you think about parsing as a giant regular expression with function calls (sub-rules). However I found Treetop's custom .treetop
+files awkward to work with.
+
+<p>I wanted a way to express PEGs directly in my Ruby code. As an active Rails
+developer, I wanted to embrace Convention-Over-Configuration and DRY and come
+up with a declarative API similar to ActiveRecord. I started out writing
+patches to Treetop, but it quickly became evident my direction was incompatible
+with the existing codebase. So, on a whim, I started Babel Bridge. A few weeks
+later, and surprisingly little code (786 lines in 0.1.1), I am quite please
+with the result.
+
+<p>Overall, my goal is to make it easy to write grammars and easy to debug them
+when they aren't working.
+
+<h1>Status</h1>
+
+The initial release is stable, but has only been lightly tested. Please let me
+know if you have problems.
+
+<h1>System Requirements</h1>
+
+Ruby 1.8 and 1.9 are supported.
+
+<h1>Related Work</h1>
+
+Other Ruby based parsers using parsing expression grammars:
+
+<ul class="bullets">
+  <li><a href="http://treetop.rubyforge.org/">Treetop</a> - requires separately compiled grammar files
+  <li><a href="https://wincent.com/products/walrat">Walrat</a> - similar in design to Babel-Bridge
+</ul>
+
+<h1>Further reading</h1>
+
+<ul class="bullets">
+  <li><a href="http://en.wikipedia.org/wiki/Parsing_expression_grammar">Parsing expression grammars (wikipedia)</a>
+</ul>
+
+<h1>Project Links</h1>
+<ul>
+  <li>Source: <a href="https://github.com/shanebdavis/Babel-Bridge">github.com/shanebdavis/Babel-Bridge</a>
+  <li>Contact: Shane Brinkman-Davis: <img style="position:absolute;top:-1px;" src="images/email.png">
+</ul>
+
+
+</div>
+</body></html>

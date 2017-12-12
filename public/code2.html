@@ -1,0 +1,83 @@
+<html>
+<head>
+  <link href="./white_screen.css" rel="stylesheet" type="text/css" />
+</head>
+<pre><code><identifier>kimi</identifier><symbol>.</symbol><identifier>image_url</identifier> <string>:type</string> <symbol>=></symbol> <string>:png</string><symbol>,</symbol> <string>:width</string> <symbol>=></symbol> <number>1024</number><symbol>,</symbol> <string>:height</string> <symbol>=></symbol> <number>1024</number>
+
+<identifier>attr_accessor</identifier> <string>:name</string><symbol>,</symbol> <string>:address</string><symbol>,</symbol> <string>:telephone</string>
+
+<identifier>before_filter</identifier> <string>:authenticate</string>
+
+<identifier>display_title</identifier> <symbol>=</symbol> <keyword>if</keyword> <identifier>kimi</identifier><symbol>.</symbol><identifier>title</identifier>
+  <identifier>kimi</identifier><symbol>.</symbol><identifier>title</identifier><symbol>.</symbol><identifier>initial_caps</identifier>
+<keyword>else</keyword>
+  <string>"Untitled"</string>
+<keyword>end</keyword>
+
+<number>0</number> <symbol>&&</symbol> <identifier>true</identifier>
+<symbol>=></symbol> <identifier>true</identifier>
+<identifier>trye</identifier> <symbol>&&</symbol> <number>0</number>
+<symbol>=></symbol> <number>0</number>
+
+<identifier>a</identifier> <symbol>&&</symbol> <identifier>b</identifier>  <symbol>=></symbol>  <identifier>a</identifier> <symbol>?</symbol> <identifier>b</identifier> <symbol>:</symbol> <identifier>a</identifier>
+<identifier>a</identifier> <symbol>||</symbol> <identifier>b</identifier>  <symbol>=></symbol>  <identifier>a</identifier> <symbol>?</symbol> <identifier>a</identifier> <symbol>:</symbol> <identifier>b</identifier>
+
+<comment># cache a calculated value</comment>
+<keyword>def</keyword> <identifier>cached_calc</identifier>
+  <symbol>@</symbol><identifier>cached_calc</identifier> <symbol>||=</symbol> <identifier>calc</identifier>
+<keyword>end</keyword>
+
+<comment># execute method only if obj is set</comment>
+<identifier>obj</identifier> <symbol>&&</symbol> <identifier>obj</identifier><symbol>.</symbol><identifier>method</identifier>
+
+<keyword>def</keyword> <identifier>image_url</identifier><symbol>(</symbol><identifier>options</identifier><symbol>={})</symbol>
+
+<keyword>end</keyword>
+
+<keyword>def</keyword> <identifier>draw_line</identifier><symbol>(</symbol><identifier>options</identifier><symbol>={})</symbol>
+  <identifier>from</identifier> <symbol>=</symbol> <identifier>options</identifier><symbol>[:</symbol><identifier>from</identifier><symbol>]</symbol>
+  <identifier>to</identifier> <symbol>=</symbol> <identifier>options</identifier><symbol>[:</symbol><identifier>to</identifier><symbol>]</symbol>
+  <identifier>draw_line</identifier> <identifier>self</identifier><symbol>,</symbol> <identifier>from</identifier><symbol>.</symbol><identifier>x</identifier><symbol>,</symbol> <identifier>from</identifier><symbol>.</symbol><identifier>y</identifier><symbol>,</symbol> <identifier>to</identifier><symbol>.</symbol><identifier>x</identifier><symbol>,</symbol> <identifier>to</identifier><symbol>.</symbol><identifier>y</identifier><symbol>,</symbol> <identifier>options</identifier>
+<keyword>end</keyword>
+
+<identifier>draw_line</identifier> <string>:from</string> <symbol>=></symbol> <symbol>[</symbol><number>1</number><symbol>,</symbol><number>2</number><symbol>],</symbol> <string>:to</string> <symbol>=></symbol> <symbol>[</symbol><number>3</number><symbol>,</symbol><number>4</number><symbol>],</symbol> <string>:color</string><symbol>=></symbol> <symbol>[</symbol><number>128</number><symbol>,</symbol><number>128</number><symbol>,</symbol><number>255</number><symbol>]</symbol>
+
+<keyword>class</keyword> <identifier>Probe</identifier>
+  <keyword>def</keyword> <identifier>method_missing</identifier><symbol>(</symbol><identifier>method_name</identifier><symbol>,</symbol> <symbol>*</symbol><identifier>args</identifier><symbol>)</symbol>
+    <identifier>puts</identifier> <string>"probed: :#{method_name}, #{args.inspect}"</string>
+  <keyword>end</keyword>
+<keyword>end</keyword>
+
+<keyword>def</keyword> <identifier>timed_do</identifier><symbol>(</symbol><identifier>options</identifier><symbol>={})</symbol>
+  <identifier>start_time</identifier><symbol>=</symbol><identifier>Time</identifier><symbol>.</symbol><identifier>now</identifier>
+  <identifier>ret</identifier><symbol>=</symbol><identifier>yield</identifier>
+  <identifier>end_time</identifier><symbol>=</symbol><identifier>Time</identifier><symbol>.</symbol><identifier>now</identifier>
+  <identifier>puts</identifier> <string>"Took #{end_time-start_time} seconds."</string>
+  <identifier>ret</identifier>
+<keyword>end</keyword>
+
+<keyword>def</keyword> <identifier>fib</identifier><symbol>(</symbol><identifier>a</identifier><symbol>)</symbol>
+  <identifier>a</identifier><symbol>&lt;</symbol><symbol>=</symbol><number>2</number> <symbol>?</symbol> <number>1</number> <symbol>:</symbol> <identifier>fib</identifier><symbol>(</symbol><identifier>a</identifier><symbol>-</symbol><number>1</number><symbol>)</symbol> <symbol>+</symbol> <identifier>fib</identifier><symbol>(</symbol><identifier>a</identifier><symbol>-</symbol><number>2</number><symbol>)</symbol>
+<keyword>end</keyword>
+
+<symbol>&gt;</symbol><symbol>&gt;</symbol> <identifier>timed_do</identifier> <symbol>{</symbol><identifier>fib</identifier><symbol>(</symbol><number>30</number><symbol>)}</symbol>
+<identifier>Took</identifier> <number>0.805528</number> <identifier>seconds</identifier><symbol>.</symbol>
+<symbol>=></symbol> <number>832040</number>
+
+<keyword>class</keyword> <identifier>Fixnum</identifier>
+  <keyword>def</keyword> <identifier>multiples_of</identifier><symbol>(</symbol><identifier>m</identifier><symbol>)</symbol>
+    <identifier>self</identifier><symbol>.</symbol><identifier>times</identifier> <keyword>do</keyword> <symbol>|</symbol><identifier>i</identifier><symbol>|</symbol>
+      <identifier>yield</identifier><symbol>((</symbol><identifier>i</identifier><symbol>+</symbol><number>1</number><symbol>)*</symbol><identifier>m</identifier><symbol>)</symbol>
+    <keyword>end</keyword>
+  <keyword>end</keyword>
+<keyword>end</keyword>
+
+<symbol>&gt;</symbol><symbol>&gt;</symbol> <number>3</number><symbol>.</symbol><identifier>multiples_of</identifier><symbol>(</symbol><number>123</number><symbol>)</symbol> <symbol>{|</symbol><identifier>a</identifier><symbol>|</symbol> <identifier>puts</identifier> <string>"result: #{a}"</string><symbol>}</symbol>
+<identifier>result</identifier><symbol>:</symbol> <number>123</number>
+<identifier>result</identifier><symbol>:</symbol> <number>246</number>
+<identifier>result</identifier><symbol>:</symbol> <number>369</number>
+
+<identifier>unknown_object</identifier><symbol>.</symbol><identifier>unknown_method</identifier><symbol>(</symbol><identifier>Probe</identifier><symbol>.</symbol><identifier>new</identifier><symbol>)</symbol>
+
+<identifier>auto_symbol</identifier> <identifier>image_type</identifier> <symbol>=</symbol> <identifier>asym</identifier><symbol>::</symbol><identifier>png</identifier><symbol>;</symbol></code></pre>
+<body>
